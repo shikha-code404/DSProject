@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C Programming: Control Flow & Pointers — DSA Learning Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ee;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --accent: #c8703a;
+    --accent2: #4a7c6f;
+    --accent3: #6b5b95;
+    --ink: #1e1c18;
+    --ink2: #4a4640;
+    --ink3: #8a8480;
+    --border: #e0dbd2;
+    --step1: #fff4e6;
+    --step2: #e8f4f0;
+    --step3: #f0ecf8;
+    --code-bg: #1a1a2e;
+    --code-text: #e8e0d0;
+    --green: #06d6a0;
+    --red: #ef476f;
+    --shadow: 0 4px 24px rgba(30,28,24,0.08);
+    --shadow-lg: 0 12px 48px rgba(30,28,24,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.75; font-size: 16px; }
+
+  /* HEADER */
+  .module-header { background: var(--ink); color: var(--bg); padding: 60px 40px 50px; position: relative; overflow: hidden; }
+  .module-header::before { content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(200,112,58,0.25) 0%, transparent 70%); top: -100px; right: -100px; pointer-events: none; }
+  .module-header::after { content: ''; position: absolute; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(74,124,111,0.2) 0%, transparent 70%); bottom: -80px; left: 20%; pointer-events: none; }
+  .header-inner { max-width: 920px; margin: 0 auto; position: relative; z-index: 1; }
+  .module-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 20px; color: rgba(247,244,238,0.8); }
+  .module-tag::before { content: '◈'; color: var(--accent); }
+  .module-header h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.02em; }
+  .module-header h1 span { color: var(--accent); }
+  .module-subtitle { font-size: 17px; font-weight: 300; color: rgba(247,244,238,0.7); max-width: 620px; margin-bottom: 36px; }
+  .learning-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px; }
+  .pill { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 500; }
+  .pill.p1::before { content: '🔀 '; }
+  .pill.p2::before { content: '🔁 '; }
+  .pill.p3::before { content: '📍 '; }
+  .pill.p4::before { content: '🔗 '; }
+  .progress-bar-container { background: rgba(255,255,255,0.1); border-radius: 12px; height: 8px; overflow: hidden; margin-bottom: 10px; }
+  .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), #e8955a); border-radius: 12px; transition: width 0.6s ease; }
+  .progress-label { font-size: 13px; color: rgba(247,244,238,0.5); }
+  .progress-label span { color: var(--accent); font-weight: 600; }
+
+  /* LAYOUT */
+  .page-layout { display: grid; grid-template-columns: 250px 1fr; max-width: 1240px; margin: 0 auto; padding: 40px 20px; align-items: start; gap: 0; }
+
+  /* SIDEBAR */
+  .sidebar { position: sticky; top: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 0; box-shadow: var(--shadow); margin-right: 36px; }
+  .sidebar-title { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink3); padding: 0 20px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; font-weight: 500; color: var(--ink2); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; text-decoration: none; }
+  .nav-item:hover { background: var(--surface2); color: var(--ink); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: #fff4ee; }
+  .nav-item .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .nav-item.active .nav-dot { background: var(--accent); }
+  .nav-item.done .nav-dot { background: var(--accent2); }
+
+  /* SECTIONS */
+  .main-content { min-width: 0; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 44px; margin-bottom: 28px; box-shadow: var(--shadow); display: none; animation: fadeUp 0.45s ease forwards; }
+  .section.visible { display: block; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  .section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink3); margin-bottom: 8px; }
+  .section h2 { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 700; margin-bottom: 18px; line-height: 1.2; }
+  .section h3 { font-family: 'Fraunces', serif; font-size: 1.25rem; font-weight: 600; margin: 36px 0 12px; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+  .section h3 .h3-num { width: 28px; height: 28px; background: var(--accent); color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .section h4 { font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--ink); }
+  .section p { color: var(--ink2); margin-bottom: 16px; line-height: 1.8; }
+  .section p:last-child { margin-bottom: 0; }
+
+  /* STEP BADGE */
+  .step-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+  .step-badge.s1 { background: var(--step1); color: #b8600a; border: 1px solid #f5c97e; }
+  .step-badge.s2 { background: var(--step2); color: #2e6b5e; border: 1px solid #9ecfc4; }
+  .step-badge.s3 { background: var(--step3); color: #5a4b85; border: 1px solid #c0b0e8; }
+
+  /* CARDS */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .card { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 22px; }
+  .card h4 { font-weight: 600; font-size: 15px; margin-bottom: 10px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .card p { font-size: 14px; color: var(--ink2); margin: 0; line-height: 1.7; }
+
+  /* ANALOGY BOX */
+  .analogy-box { background: linear-gradient(135deg, #fff9f0, #fff4e6); border: 1px solid #f5c97e; border-left: 4px solid var(--accent); border-radius: 12px; padding: 22px 26px; margin: 24px 0; }
+  .analogy-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .analogy-label::before { content: '💡'; }
+  .analogy-box p { color: var(--ink2); margin: 0 0 10px; font-size: 15px; line-height: 1.8; }
+  .analogy-box p:last-child { margin-bottom: 0; }
+
+  /* CONCEPT DEEP-DIVE */
+  .concept-block { border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin: 24px 0; }
+  .concept-block-header { background: var(--surface2); padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .concept-block-header .cb-icon { font-size: 22px; }
+  .concept-block-header h4 { font-weight: 600; font-size: 15px; margin: 0; color: var(--ink); }
+  .concept-block-header span { font-size: 13px; color: var(--ink3); margin-left: auto; }
+  .concept-block-body { padding: 22px; }
+  .concept-block-body p { color: var(--ink2); margin-bottom: 14px; font-size: 15px; }
+
+  /* HOW IT WORKS */
+  .how-it-works { background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: 14px; padding: 22px 26px; margin: 20px 0; }
+  .how-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #2563eb; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+  .how-label::before { content: '⚙️'; }
+  .steps-list { list-style: none; counter-reset: steps; }
+  .steps-list li { counter-increment: steps; display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; font-size: 15px; color: var(--ink2); line-height: 1.7; }
+  .steps-list li:last-child { margin-bottom: 0; }
+  .steps-list li::before { content: counter(steps); width: 26px; height: 26px; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+
+  /* TRACE TABLE */
+  .trace-table-wrapper { margin: 20px 0; overflow-x: auto; }
+  .trace-table-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent2); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .trace-table-label::before { content: '📊'; }
+  table.trace { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.trace th { background: var(--ink); color: var(--bg); padding: 10px 16px; text-align: left; font-weight: 600; font-family: 'DM Mono', monospace; font-size: 13px; }
+  table.trace td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: var(--ink2); font-family: 'DM Mono', monospace; font-size: 13px; }
+  table.trace tr:nth-child(even) td { background: var(--surface2); }
+  table.trace tr.hi td { background: #fff4e6; color: var(--accent); font-weight: 600; }
+  table.trace tr.skip td { background: #fff0f3; color: var(--red); text-decoration: line-through; opacity: 0.7; }
+  table.trace tr.stop td { background: #fef3c7; color: #92400e; font-weight: 600; }
+
+  /* SYNTAX BOX */
+  .syntax-box { background: #f8f5ff; border: 1px dashed #c0b0e8; border-radius: 12px; padding: 18px 22px; margin: 18px 0; }
+  .syntax-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #5a4b85; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .syntax-label::before { content: '{ }'; }
+  .syntax-box pre { background: transparent; color: #5a4b85; padding: 0; font-size: 14px; line-height: 1.9; }
+
+  /* CODE BLOCKS */
+  .code-block { background: var(--code-bg); border-radius: 14px; overflow: hidden; margin: 20px 0; box-shadow: var(--shadow-lg); }
+  .code-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .code-dots { display: flex; gap: 7px; }
+  .code-dots span { width: 12px; height: 12px; border-radius: 50%; }
+  .code-dots span:nth-child(1) { background: #ff5f57; }
+  .code-dots span:nth-child(2) { background: #febc2e; }
+  .code-dots span:nth-child(3) { background: #28c840; }
+  .code-lang { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 0.06em; }
+  pre { padding: 24px; overflow-x: auto; font-family: 'DM Mono', monospace; font-size: 14px; line-height: 1.9; color: var(--code-text); }
+  .hl { background: rgba(255,209,102,0.15); border-radius: 3px; padding: 1px 3px; color: #ffd166; }
+  .cm { color: #6a9956; }
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .st { color: #c3e88d; }
+  .nm { color: #f78c6c; }
+  .op { color: #89ddff; }
+
+  /* OUTPUT BOX */
+  .output-box { background: #0d1117; border: 1px solid #2a2f3a; border-radius: 10px; padding: 16px 20px; margin-top: -10px; margin-bottom: 20px; }
+  .output-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #58a6ff; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .output-label::before { content: '▶'; font-size: 9px; }
+  .output-box code { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--green); }
+
+  /* OUTPUT EXPLAIN */
+  .output-explain { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 16px 20px; margin-top: -8px; margin-bottom: 20px; font-size: 14px; color: #166534; line-height: 1.7; }
+  .output-explain strong { color: #14532d; }
+
+  /* MEMORY DIAGRAM */
+  .memory-diagram { background: #0f172a; border-radius: 16px; padding: 28px; margin: 24px 0; overflow-x: auto; }
+  .mem-title { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(247,244,238,0.35); margin-bottom: 20px; text-align: center; }
+  .mem-row { display: flex; align-items: stretch; justify-content: center; margin-bottom: 16px; }
+  .mem-cell { min-width: 100px; padding: 14px 12px; border: 1.5px solid rgba(255,255,255,0.12); text-align: center; }
+  .mem-cell:first-child { border-radius: 8px 0 0 8px; }
+  .mem-cell:last-child { border-radius: 0 8px 8px 0; }
+  .mem-cell.active { background: rgba(200,112,58,0.18); border-color: var(--accent); }
+  .mem-cell.ptr { background: rgba(74,124,111,0.18); border-color: var(--accent2); }
+  .mem-val { font-family: 'DM Mono', monospace; font-size: 20px; font-weight: 500; color: #ffd166; display: block; }
+  .mem-addr { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(247,244,238,0.28); display: block; margin-top: 5px; }
+  .mem-name { font-size: 12px; font-weight: 600; color: rgba(247,244,238,0.55); display: block; margin-top: 5px; }
+  .ptr-arrow { display: flex; align-items: center; justify-content: center; padding: 0 10px; color: var(--accent); font-size: 26px; }
+  .mem-legend { display: flex; gap: 24px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .mem-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(247,244,238,0.45); }
+  .mem-legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* FLOWCHART */
+  .flowchart { display: flex; flex-direction: column; align-items: center; padding: 24px 20px; background: var(--surface2); border-radius: 16px; border: 1px solid var(--border); margin: 24px 0; }
+  .flow-node { padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 500; text-align: center; min-width: 190px; }
+  .flow-node.start { background: var(--accent); color: white; border-radius: 50px; }
+  .flow-node.process { background: #dbeafe; color: #1d4ed8; border: 1.5px solid #93c5fd; }
+  .flow-node.decision { background: #fef3c7; color: #92400e; border: 1.5px solid #fcd34d; clip-path: polygon(22px 0%,calc(100% - 22px) 0%,100% 50%,calc(100% - 22px) 100%,22px 100%,0% 50%); min-width: 230px; padding: 14px 40px; }
+  .flow-node.end { background: var(--accent2); color: white; border-radius: 50px; }
+  .flow-node.body { background: #f0fdf4; color: #166534; border: 1.5px solid #86efac; }
+  .flow-node.body2 { background: #fce7f3; color: #9d174d; border: 1.5px solid #f9a8d4; }
+  .flow-arrow { display: flex; align-items: center; flex-direction: column; color: var(--ink3); }
+  .flow-arrow .arr { font-size: 22px; line-height: 1.2; }
+  .flow-branch { display: flex; gap: 50px; margin: 6px 0; }
+  .flow-branch-col { display: flex; flex-direction: column; align-items: center; }
+  .flow-branch-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink3); margin: 5px 0; }
+
+  /* CALLOUT */
+  .callout { display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; border-radius: 12px; margin: 20px 0; }
+  .callout.info { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .callout.warn { background: #fffbeb; border: 1px solid #fde68a; }
+  .callout.tip { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .callout.danger { background: #fff1f2; border: 1px solid #fecdd3; }
+  .callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .callout p { font-size: 14px; margin: 0; color: var(--ink2); line-height: 1.7; }
+
+  /* COMPARE TABLE */
+  .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+  .compare-table th { background: var(--ink); color: var(--bg); padding: 12px 16px; text-align: left; font-weight: 600; }
+  .compare-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--ink2); vertical-align: top; line-height: 1.6; }
+  .compare-table tr:nth-child(even) td { background: var(--surface2); }
+  .compare-table th:first-child, .compare-table td:first-child { font-family: 'DM Mono', monospace; font-weight: 600; color: var(--accent); }
+
+  /* INTRO BANNER */
+  .intro-banner { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .intro-banner-item { padding: 22px; border-radius: 14px; display: flex; align-items: flex-start; gap: 16px; }
+  .intro-banner-item.a { background: var(--step1); border: 1px solid #f5c97e; }
+  .intro-banner-item.b { background: var(--step2); border: 1px solid #9ecfc4; }
+  .intro-banner-icon { font-size: 30px; flex-shrink: 0; margin-top: 2px; }
+  .intro-banner-text h4 { font-weight: 600; margin-bottom: 6px; font-size: 15px; }
+  .intro-banner-text p { font-size: 14px; color: var(--ink2); margin: 0; line-height: 1.7; }
+
+  /* PRACTICE */
+  .practice-card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 22px; }
+  .practice-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .practice-num { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; color: var(--accent); margin-right: 14px; }
+  .practice-title { font-weight: 600; font-size: 16px; }
+  .practice-difficulty { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; }
+  .diff-easy { background: #dcfce7; color: #166534; }
+  .diff-medium { background: #fef3c7; color: #92400e; }
+  .practice-body { padding: 22px; }
+  .practice-body p { color: var(--ink2); margin-bottom: 16px; font-size: 15px; }
+  .hint-btn { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1.5px dashed var(--accent); color: var(--accent); border-radius: 8px; padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+  .hint-btn:hover { background: #fff4ee; }
+  .hint-content { display: none; background: #fff9f0; border: 1px solid #f5c97e; border-radius: 10px; padding: 16px 18px; margin-top: 12px; font-size: 14px; color: var(--ink2); line-height: 1.7; }
+  .hint-content.show { display: block; animation: fadeUp 0.3s ease; }
+
+  /* QUIZ */
+  .quiz-question { margin-bottom: 30px; }
+  .quiz-q { font-weight: 600; margin-bottom: 14px; font-size: 16px; line-height: 1.5; }
+  .quiz-q span { color: var(--accent); margin-right: 8px; font-family: 'Fraunces', serif; font-size: 1.1em; }
+  .quiz-options { display: flex; flex-direction: column; gap: 9px; }
+  .quiz-option { display: flex; align-items: center; gap: 14px; padding: 13px 18px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 15px; background: var(--surface); }
+  .quiz-option:hover { border-color: var(--accent); background: #fff9f4; }
+  .quiz-option.correct { border-color: var(--accent2); background: #e8f4f0; color: #1a5c4e; }
+  .quiz-option.wrong { border-color: var(--red); background: #fff0f3; color: #9b1c2e; }
+  .quiz-option .opt-circle { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; color: var(--ink3); }
+  .quiz-option.correct .opt-circle { border-color: var(--accent2); background: var(--accent2); color: white; }
+  .quiz-option.wrong .opt-circle { border-color: var(--red); background: var(--red); color: white; }
+  .quiz-submit-btn { background: var(--accent); color: white; border: none; border-radius: 10px; padding: 13px 30px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; margin-top: 10px; }
+  .quiz-submit-btn:hover { background: #b85e28; transform: translateY(-1px); }
+  .quiz-result { display: none; margin-top: 22px; padding: 22px 26px; border-radius: 14px; background: linear-gradient(135deg, var(--step2), #d4edea); border: 1px solid #9ecfc4; }
+  .quiz-result.show { display: block; animation: fadeUp 0.4s ease; }
+  .quiz-result h4 { font-family: 'Fraunces', serif; font-size: 1.3rem; margin-bottom: 8px; color: #1a5c4e; }
+  .quiz-result p { color: #2e6b5e; margin: 0; }
+
+  /* SUMMARY */
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 22px; }
+  .summary-item { display: flex; align-items: flex-start; gap: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .summary-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .summary-icon.s1 { background: var(--step1); }
+  .summary-icon.s2 { background: var(--step2); }
+  .summary-icon.s3 { background: var(--step3); }
+  .summary-icon.s4 { background: #fce8ee; }
+  .summary-text { font-size: 14px; color: var(--ink2); line-height: 1.7; }
+  .summary-text strong { color: var(--ink); display: block; margin-bottom: 3px; font-size: 15px; }
+
+  /* NAV */
+  .section-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 36px; padding-top: 26px; border-top: 1px solid var(--border); }
+  .nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; border: none; }
+  .nav-btn.prev { background: var(--surface2); color: var(--ink2); border: 1.5px solid var(--border); }
+  .nav-btn.prev:hover { background: var(--border); }
+  .nav-btn.next { background: var(--accent); color: white; }
+  .nav-btn.next:hover { background: #b85e28; transform: translateY(-1px); }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
+
+  .step-badge.s4 { background: #e8f0fe; color: #1a47a0; border: 1px solid #a8c0f8; }
+
+  /* DIVIDER */
+  .concept-divider { border: none; border-top: 2px dashed var(--border); margin: 36px 0; }
+
+  @media (max-width: 800px) {
+    .page-layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; margin-right: 0; margin-bottom: 24px; }
+    .card-grid, .intro-banner, .summary-grid { grid-template-columns: 1fr; }
+    .flow-branch { gap: 16px; }
+    .module-header { padding: 40px 24px 36px; }
+    .section { padding: 28px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="module-header">
+  <div class="header-inner">
+    <div class="module-tag">DSA Learning Platform · Module 3</div>
+    <h1>Control Flow &amp; <span>Pointers</span> in C</h1>
+    <p class="module-subtitle">Master how C makes decisions, repeats tasks, and directly manipulates memory — explained like a mentor, step by step.</p>
+    <div class="learning-pills">
+      <div class="pill p1">Decision Making</div>
+      <div class="pill p2">Loops</div>
+      <div class="pill p3">Memory &amp; Pointers</div>
+      <div class="pill p4">Call by Reference</div>
+    </div>
+    <div class="progress-bar-container"><div class="progress-bar-fill" id="progressBar"></div></div>
+    <div class="progress-label">Progress: <span id="progressText">0%</span></div>
+  </div>
+</div>
+
+<div class="page-layout">
+
+  <!-- ══ SIDEBAR ══ -->
+  <nav class="sidebar">
+    <div class="sidebar-title">Module Contents</div>
+    <a class="nav-item active" onclick="goTo(0);return false;" href="#"><span class="nav-dot"></span> Introduction</a>
+    <a class="nav-item" onclick="goTo(1);return false;" href="#"><span class="nav-dot"></span> Step 1 · if / else</a>
+    <a class="nav-item" onclick="goTo(2);return false;" href="#"><span class="nav-dot"></span> Step 1 · switch</a>
+    <a class="nav-item" onclick="goTo(3);return false;" href="#"><span class="nav-dot"></span> Step 2 · Loops</a>
+    <a class="nav-item" onclick="goTo(4);return false;" href="#"><span class="nav-dot"></span> Step 2 · break &amp; continue</a>
+    <a class="nav-item" onclick="goTo(5);return false;" href="#"><span class="nav-dot"></span> Step 3 · Pointers</a>
+    <a class="nav-item" onclick="goTo(6);return false;" href="#"><span class="nav-dot"></span> Step 3 · Functions</a>
+    <a class="nav-item" onclick="goTo(7);return false;" href="#"><span class="nav-dot"></span> Practice Problems</a>
+    <a class="nav-item" onclick="goTo(8);return false;" href="#"><span class="nav-dot"></span> Mini Quiz</a>
+    <a class="nav-item" onclick="goTo(9);return false;" href="#"><span class="nav-dot"></span> Summary</a>
+    <div style="border-top:1px solid var(--border);margin:10px 0 6px;"></div>
+    <div style="font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent3);padding:0 20px 6px;">Module 4 · Arrays</div>
+    <a class="nav-item" onclick="goTo(10);return false;" href="#"><span class="nav-dot"></span> Step 4 · Arrays Intro</a>
+    <a class="nav-item" onclick="goTo(11);return false;" href="#"><span class="nav-dot"></span> Step 4 · Arrays Deep Dive</a>
+    <a class="nav-item" onclick="goTo(12);return false;" href="#"><span class="nav-dot"></span> Step 4 · Arrays Practice</a>
+  </nav>
+
+  <main class="main-content">
+
+  <!-- ══════════════════════════════════════════
+       SECTION 0: INTRODUCTION
+  ══════════════════════════════════════════ -->
+  <div class="section visible" id="sec-0">
+    <div class="section-label">Getting Started</div>
+    <h2>Why These Topics Matter</h2>
+
+    <p>Imagine writing a program that can <em>only</em> execute from top to bottom, in a fixed sequence, with no ability to make decisions or repeat actions. It would be nearly useless in the real world. That's exactly why <strong>Control Flow</strong> and <strong>Pointers</strong> exist — they give your program intelligence, flexibility, and power over memory.</p>
+
+    <p>Together, these two concepts form the backbone of C programming. Every meaningful program — from a login system to a game engine — relies on decisions, loops, and direct memory access.</p>
+
+    <div class="intro-banner">
+      <div class="intro-banner-item a">
+        <div class="intro-banner-icon">🔀</div>
+        <div class="intro-banner-text">
+          <h4>Control Flow</h4>
+          <p>Think of it as the program's <em>brain</em>. Instead of blindly executing every line, the program evaluates conditions and chooses which path to take — like a GPS recalculating your route based on traffic. Control flow includes decisions (<code>if/else</code>, <code>switch</code>), repetition (<code>while</code>, <code>for</code>, <code>do-while</code>), and jump statements (<code>break</code>, <code>continue</code>).</p>
+        </div>
+      </div>
+      <div class="intro-banner-item b">
+        <div class="intro-banner-icon">📍</div>
+        <div class="intro-banner-text">
+          <h4>Pointers</h4>
+          <p>Think of computer memory as a massive apartment building — each apartment (memory cell) has a unique address number. A pointer is like a <em>piece of paper</em> that holds an apartment number. It doesn't store a person (value) — it stores the <em>address</em> where the person lives. This allows you to directly reach into memory and change values from anywhere in your program.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>What You'll Learn in This Module</h3>
+    <div class="card-grid">
+      <div class="card"><h4>🔀 Decision Statements</h4><p>How to write programs that make choices using <code>if</code>, <code>if-else</code>, and <code>switch</code>. Your program will evaluate a condition and execute different code based on the result.</p></div>
+      <div class="card"><h4>🔁 Loops</h4><p>How to repeat a block of code using <code>while</code>, <code>for</code>, and <code>do-while</code> loops — essential for processing lists, counting, and repetitive tasks.</p></div>
+      <div class="card"><h4>⏹ Jump Statements</h4><p>How <code>break</code> exits a loop immediately, and how <code>continue</code> skips a specific iteration while keeping the loop running.</p></div>
+      <div class="card"><h4>📍 Pointers</h4><p>How to declare and use pointer variables, read and modify values via memory addresses, and how pointers enable powerful function techniques like call by reference.</p></div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">📘</span>
+      <p><strong>How to use this module:</strong> Each section builds on the previous one. Read every explanation carefully, trace through code examples line by line, and only move to the next step when the concept feels clear. There's no rush — understanding deeply now saves hours of confusion later.</p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" disabled>← Back</button>
+      <button class="nav-btn next" onclick="goTo(1)">Next: if / else →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 1: if / else
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-1">
+    <div class="step-badge s1">→ Step 1 · Basics · Decision Making</div>
+    <div class="section-label">Control Flow — Decision Statements</div>
+    <h2>The <code>if</code> and <code>if-else</code> Statement</h2>
+
+    <p>A program that always does the same thing regardless of input is useless. Real programs need to <strong>react to conditions</strong>. That's where <code>if</code> and <code>if-else</code> come in — they are C's most basic decision-making tools, and they are the foundation of all logic in programming.</p>
+
+    <p>At its core, an <code>if</code> statement asks a simple question: <em>"Is this condition true?"</em> If yes, execute this block of code. If no, skip it (or run the <code>else</code> block instead). This one idea powers everything from simple input validation to complex game AI.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">Real-life Analogy</div>
+      <p>Think of the turnstile at a metro station 🚇. The system checks: <em>if</em> you have a valid ticket → the gate opens and you pass. <em>else</em> → the gate stays locked. That check happens at the exact moment you tap your card. Your C program works exactly the same way: it evaluates the condition at runtime, at that specific line of code, and acts accordingly.</p>
+      <p>Another analogy: your phone's auto-brightness. <em>If</em> it's dark → increase screen brightness. <em>Else</em> → reduce brightness. One decision point, two possible outcomes.</p>
+    </div>
+
+    <!-- THE IF STATEMENT -->
+    <h3><span class="h3-num">1</span> The <code>if</code> Statement</h3>
+
+    <p>The <code>if</code> statement is the simplest form of decision-making. You provide a <strong>condition</strong> (an expression that evaluates to either true or false), and if that condition is <strong>true</strong>, the block of code inside the curly braces executes. If the condition is <strong>false</strong>, the entire block is completely skipped and execution continues after the closing brace.</p>
+
+    <p>In C, any non-zero value is treated as <strong>true</strong>, and zero is treated as <strong>false</strong>. Comparison operators like <code>&gt;</code>, <code>&lt;</code>, <code>==</code>, <code>!=</code> return 1 (true) or 0 (false).</p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax</div>
+      <pre>if (condition) {
+    // This block runs ONLY when condition is TRUE (non-zero)
+    // If condition is FALSE (zero), this entire block is skipped
+}</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · if statement</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> num = <span class="nm">10</span>;        <span class="cm">// num holds value 10</span>
+
+    <span class="kw">if</span>(num <span class="op">&gt;</span> <span class="nm">0</span>) {         <span class="cm">// condition: is 10 greater than 0?</span>
+                         <span class="cm">// 10 > 0 evaluates to 1 (TRUE)</span>
+        <span class="hl"><span class="fn">printf</span>(<span class="st">"Number is positive"</span>);</span>  <span class="cm">// ✓ this line RUNS</span>
+    }
+    <span class="cm">// If num were -5, the condition would be FALSE and printf would be SKIPPED</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>Number is positive</code></div>
+    <div class="output-explain">
+      <strong>Why this output?</strong> The variable <code>num</code> is 10. The condition <code>10 &gt; 0</code> is <strong>true</strong> (evaluates to 1). So the program enters the if-block and executes <code>printf</code>. If <code>num</code> were set to <code>-3</code>, the condition <code>-3 &gt; 0</code> would be <strong>false</strong> (evaluates to 0), and <em>nothing would be printed at all</em>.
+    </div>
+
+    <div class="how-it-works">
+      <div class="how-label">How the CPU executes an if statement</div>
+      <ol class="steps-list">
+        <li>The CPU evaluates the condition inside the parentheses: <code>num &gt; 0</code> → computes to 1 (true) or 0 (false).</li>
+        <li>If the result is <strong>non-zero (true)</strong>: the CPU jumps into the block and executes all statements inside.</li>
+        <li>If the result is <strong>zero (false)</strong>: the CPU jumps past the closing <code>}</code> brace and continues with whatever comes next.</li>
+        <li>Either way, after the if-block, execution continues normally from the line after the block.</li>
+      </ol>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- THE IF-ELSE STATEMENT -->
+    <h3><span class="h3-num">2</span> The <code>if-else</code> Statement</h3>
+
+    <p>The plain <code>if</code> statement only handles the "true" case — it has no reaction when the condition is false. The <code>if-else</code> statement covers <strong>both outcomes</strong>: one block for when the condition is true, and another block (the <code>else</code>) for when it is false. Exactly one of the two blocks will always execute — never both, never neither.</p>
+
+    <p>This is the bedrock of binary decision-making: a fork in the road where every path is accounted for.</p>
+
+    <div class="flowchart">
+      <div class="flow-node start">Program reaches if-else</div>
+      <div class="flow-arrow"><div class="arr">↓</div></div>
+      <div class="flow-node decision">Is num % 2 == 0 ?</div>
+      <div class="flow-branch" style="margin-top:10px">
+        <div class="flow-branch-col">
+          <div class="flow-branch-label">TRUE ✓</div>
+          <div class="flow-node body">Execute if-block<br><small>printf("Even number")</small></div>
+        </div>
+        <div class="flow-branch-col">
+          <div class="flow-branch-label">FALSE ✗</div>
+          <div class="flow-node body2">Execute else-block<br><small>printf("Odd number")</small></div>
+        </div>
+      </div>
+      <div class="flow-arrow" style="margin-top:10px"><div class="arr">↓</div></div>
+      <div class="flow-node process">Continue with rest of program</div>
+    </div>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax</div>
+      <pre>if (condition) {
+    // Runs when condition is TRUE
+} else {
+    // Runs when condition is FALSE
+    // Only one block ever executes — guaranteed
+}</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · if-else statement</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> num = <span class="nm">5</span>;
+
+    <span class="cm">// num % 2 gives the remainder when dividing num by 2</span>
+    <span class="cm">// Even numbers: remainder is 0.  Odd numbers: remainder is 1.</span>
+    <span class="kw">if</span>(num <span class="op">%</span> <span class="nm">2</span> <span class="op">==</span> <span class="nm">0</span>)           <span class="cm">// is 5 % 2 equal to 0? → NO (5%2 = 1)</span>
+        <span class="fn">printf</span>(<span class="st">"Even number"</span>);   <span class="cm">// ✗ SKIPPED because condition is false</span>
+    <span class="kw">else</span>
+        <span class="hl"><span class="fn">printf</span>(<span class="st">"Odd number"</span>);</span>    <span class="cm">// ✓ RUNS because condition was false</span>
+
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>Odd number</code></div>
+    <div class="output-explain">
+      <strong>Tracing the logic:</strong> <code>num = 5</code>. The modulo operation <code>5 % 2</code> gives remainder <code>1</code>. So the condition <code>1 == 0</code> is <strong>false</strong>. The <code>if</code>-block is skipped entirely. The program jumps to the <code>else</code>-block and prints <code>"Odd number"</code>. If <code>num</code> were <code>4</code>, then <code>4 % 2 = 0</code>, the condition would be <strong>true</strong>, and <code>"Even number"</code> would print instead.
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>Common mistake:</strong> Using <code>=</code> (assignment) instead of <code>==</code> (comparison) inside an if condition. Writing <code>if(num = 0)</code> <em>assigns</em> 0 to num — it doesn't compare! The condition would always be false. Always use <code>==</code> for comparisons.</p>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✅</span>
+      <p><strong>Extending to 3+ outcomes:</strong> You can chain decisions using <code>else if</code>: <code>if (x &gt; 0) ... else if (x &lt; 0) ... else ...</code>. This lets you handle any number of mutually exclusive conditions, evaluated from top to bottom. The first true condition wins, and the rest are skipped.</p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(0)">← Introduction</button>
+      <button class="nav-btn next" onclick="goTo(2)">Next: switch →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 2: switch
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-2">
+    <div class="step-badge s1">→ Step 1 · Basics · Multiple Choices</div>
+    <div class="section-label">Control Flow — Decision Statements</div>
+    <h2>The <code>switch</code> Statement</h2>
+
+    <p>Suppose you need to check a variable against 10 possible values. You <em>could</em> write 10 <code>else if</code> chains — but that becomes hard to read and error-prone. The <code>switch</code> statement was designed for exactly this situation: when you have <strong>one variable and many possible specific values</strong> to compare against.</p>
+
+    <p>Instead of re-evaluating a condition each time, <code>switch</code> evaluates the variable once and then <em>jumps directly</em> to the matching <code>case</code>. This makes the code cleaner, more readable, and can even be faster because the CPU can optimize the jump table internally.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">Real-life Analogy</div>
+      <p>Think of a hotel elevator panel 🏨. You press floor button 5 — the elevator doesn't check "is it floor 1? no. is it floor 2? no. is it floor 3? no..." It reads your selection and jumps directly to floor 5. That's exactly what <code>switch</code> does: it evaluates the variable once and jumps to the matching case, bypassing all others.</p>
+      <p>Another analogy: a vending machine. You enter code <code>B3</code> → the machine directly dispenses item B3. It doesn't iterate through all items sequentially.</p>
+    </div>
+
+    <h3><span class="h3-num">1</span> How switch Works — Under the Hood</h3>
+
+    <div class="how-it-works">
+      <div class="how-label">Execution flow of a switch statement</div>
+      <ol class="steps-list">
+        <li>The expression inside <code>switch(...)</code> is evaluated exactly <strong>once</strong> and its value is stored.</li>
+        <li>The program scans the <code>case</code> labels sequentially until it finds one that <strong>matches</strong> the evaluated value.</li>
+        <li>Execution <strong>jumps</strong> to that matching case and begins running code from there.</li>
+        <li>When a <code>break</code> statement is encountered, execution jumps out of the entire switch block.</li>
+        <li>If <strong>no</strong> case matches, the <code>default</code> block runs (if present). Think of <code>default</code> as the "catch-all" fallback — like the <code>else</code> in an if-else chain.</li>
+      </ol>
+    </div>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax</div>
+      <pre>switch (expression) {
+    case value1:
+        // code for value1
+        break;        // exit switch after this case
+    case value2:
+        // code for value2
+        break;
+    default:
+        // runs if NO case matches — optional but recommended
+}</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · switch statement</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> day = <span class="nm">2</span>;           <span class="cm">// we want to find the name for day number 2</span>
+
+    <span class="kw">switch</span>(day) {          <span class="cm">// evaluate 'day' once → value is 2</span>
+        <span class="kw">case</span> <span class="nm">1</span>:
+            <span class="fn">printf</span>(<span class="st">"Monday"</span>);
+            <span class="kw">break</span>;         <span class="cm">// day≠1, so this case is skipped entirely</span>
+
+        <span class="hl"><span class="kw">case</span> <span class="nm">2</span>:               <span class="cm">// ← MATCH! day == 2, execution jumps here</span>
+            <span class="fn">printf</span>(<span class="st">"Tuesday"</span>);
+            <span class="kw">break</span>;</span>         <span class="cm">// break exits the switch — case 3 is NOT reached</span>
+
+        <span class="kw">case</span> <span class="nm">3</span>:
+            <span class="fn">printf</span>(<span class="st">"Wednesday"</span>);
+            <span class="kw">break</span>;         <span class="cm">// skipped because break above already exited</span>
+
+        <span class="kw">default</span>:
+            <span class="fn">printf</span>(<span class="st">"Invalid day"</span>);  <span class="cm">// runs only if day is not 1, 2, or 3</span>
+    }
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>Tuesday</code></div>
+    <div class="output-explain">
+      <strong>Trace:</strong> <code>day = 2</code>. The switch evaluates <code>day</code> (gets 2). It checks <code>case 1</code> — no match, skip. It checks <code>case 2</code> — <strong>match!</strong> It executes <code>printf("Tuesday")</code> and then hits <code>break</code>, which immediately exits the switch block. <code>case 3</code> and <code>default</code> are never reached.
+    </div>
+
+    <h3><span class="h3-num">2</span> The Critical Role of <code>break</code></h3>
+
+    <p>Here's something that catches beginners off guard: <strong>if you omit <code>break</code>, the program does not stop at the matching case — it keeps running through every case below it</strong>. This behavior is called <em>fall-through</em>.</p>
+
+    <div class="callout danger">
+      <span class="callout-icon">🚨</span>
+      <p><strong>Fall-through without break:</strong> If <code>day = 2</code> and you remove all <code>break</code> statements, the output would be <code>TuesdayWednesdayInvalid day</code> — because after matching case 2, execution literally "falls through" into case 3 and then into default. This is almost always a bug. Always add <code>break</code> unless you specifically intend fall-through behavior.</p>
+    </div>
+
+    <h3><span class="h3-num">3</span> switch vs if-else — When to Use Which</h3>
+    <table class="compare-table">
+      <tr><th>Feature</th><th><code>if / else-if</code></th><th><code>switch</code></th></tr>
+      <tr><td>Best for</td><td>Ranges, complex conditions (<code>x &gt; 10 &amp;&amp; x &lt; 20</code>)</td><td>Exact equality checks against specific values</td></tr>
+      <tr><td>Variable types</td><td>Any type (int, float, string logic)</td><td>Integer and character types only</td></tr>
+      <tr><td>Readability</td><td>Can get messy with many else-if chains</td><td>Very clean and readable for many specific cases</td></tr>
+      <tr><td>Default fallback</td><td><code>else</code> block</td><td><code>default</code> block</td></tr>
+    </table>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(1)">← if / else</button>
+      <button class="nav-btn next" onclick="goTo(3)">Next: Loops →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 3: LOOPS
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-3">
+    <div class="step-badge s2">→ Step 2 · Intermediate · Loops</div>
+    <div class="section-label">Control Flow — Looping Statements</div>
+    <h2>Loops: while, for, do-while</h2>
+
+    <p>One of the most powerful things a computer can do is perform the same operation millions of times without getting tired. Without loops, if you wanted to print numbers 1 to 1000, you'd have to write 1000 individual <code>printf</code> statements. <strong>Loops</strong> solve this by automatically repeating a block of code as long as a condition remains true.</p>
+
+    <p>C provides three types of loops, each with a different style and use case. Understanding when to use each one is a key skill in programming.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">Real-life Analogy</div>
+      <p>Think of a factory assembly line 🏭. A robot arm performs the same welding action on every car frame that passes. It doesn't need a new instruction for each frame — the same instruction repeats until the shift ends (condition becomes false). That's a loop: <em>repeat this action while the condition holds</em>.</p>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- WHILE LOOP -->
+    <h3><span class="h3-num">1</span> The <code>while</code> Loop — "Keep going as long as..."</h3>
+
+    <p>The <code>while</code> loop is the most fundamental loop. It checks its condition <strong>before</strong> each iteration. If the condition is true, the body runs. If it's false — even on the very first check — the body is never executed at all.</p>
+
+    <p>This makes <code>while</code> ideal for situations where you don't know ahead of time how many iterations you need — you just know the condition that should keep the loop going.</p>
+
+    <div class="how-it-works">
+      <div class="how-label">while loop execution cycle</div>
+      <ol class="steps-list">
+        <li><strong>Check condition:</strong> Evaluate the condition expression. Is it true (non-zero)?</li>
+        <li><strong>If TRUE →</strong> Execute the loop body (all statements inside the curly braces).</li>
+        <li><strong>After body →</strong> Go back to step 1 and check the condition again.</li>
+        <li><strong>If FALSE →</strong> Skip the body entirely and continue with the code after the loop.</li>
+        <li><strong>⚠️ Critical:</strong> The loop variable must be updated inside the body, or the loop runs forever (infinite loop).</li>
+      </ol>
+    </div>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax</div>
+      <pre>// Setup: initialize your loop variable BEFORE the while
+int i = 1;
+
+while (condition) {
+    // Body: code to repeat
+    // Update: change the variable to eventually make condition false!
+}</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · while loop</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> i = <span class="nm">1</span>;           <span class="cm">// Step A: initialize loop variable before loop</span>
+
+    <span class="kw">while</span>(i <span class="op">&lt;=</span> <span class="nm">5</span>) {      <span class="cm">// Step B: condition checked BEFORE each pass</span>
+        <span class="hl"><span class="fn">printf</span>(<span class="st">"%d "</span>, i);</span> <span class="cm">// Step C: body executes if condition was true</span>
+        i<span class="op">++</span>;             <span class="cm">// Step D: update — increment i, or loop runs forever!</span>
+    }                    <span class="cm">// Goes back to Step B after each iteration</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>1 2 3 4 5 </code></div>
+
+    <div class="trace-table-wrapper">
+      <div class="trace-table-label">Execution Trace — watching i change each iteration</div>
+      <table class="trace">
+        <tr><th>Iteration</th><th>i value (start)</th><th>Condition: i &lt;= 5</th><th>Action</th><th>i value (end)</th></tr>
+        <tr><td>1st</td><td>1</td><td>1 ≤ 5 → TRUE</td><td>print "1 ", then i++</td><td>2</td></tr>
+        <tr><td>2nd</td><td>2</td><td>2 ≤ 5 → TRUE</td><td>print "2 ", then i++</td><td>3</td></tr>
+        <tr><td>3rd</td><td>3</td><td>3 ≤ 5 → TRUE</td><td>print "3 ", then i++</td><td>4</td></tr>
+        <tr><td>4th</td><td>4</td><td>4 ≤ 5 → TRUE</td><td>print "4 ", then i++</td><td>5</td></tr>
+        <tr><td>5th</td><td>5</td><td>5 ≤ 5 → TRUE</td><td>print "5 ", then i++</td><td>6</td></tr>
+        <tr class="stop"><td>6th check</td><td>6</td><td>6 ≤ 5 → FALSE</td><td>Loop exits — body not run</td><td>6</td></tr>
+      </table>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- FOR LOOP -->
+    <h3><span class="h3-num">2</span> The <code>for</code> Loop — "Repeat exactly N times"</h3>
+
+    <p>The <code>for</code> loop is the most commonly used loop in C. It is a compact, all-in-one loop designed for situations where you know exactly how many iterations you need. What makes it special is that <strong>the initialization, condition, and update are all written in a single line</strong> — making the loop's intent immediately clear to anyone reading the code.</p>
+
+    <p>Under the hood, a <code>for</code> loop is equivalent to a <code>while</code> loop — it just reorganizes the three components into a cleaner format.</p>
+
+    <div class="how-it-works">
+      <div class="how-label">Anatomy of a for loop — three parts</div>
+      <ol class="steps-list">
+        <li><strong>Init</strong> (<code>int i = 1</code>): Runs <em>once</em> at the very start, before the first iteration. Sets up the loop counter.</li>
+        <li><strong>Condition</strong> (<code>i &lt;= 5</code>): Evaluated <em>before each iteration</em>. If true, the body runs. If false, the loop stops.</li>
+        <li><strong>Update</strong> (<code>i++</code>): Runs <em>after each iteration</em>, before re-checking the condition. Advances the counter.</li>
+        <li><strong>Body</strong>: The block of code inside the braces that repeats.</li>
+      </ol>
+    </div>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax</div>
+      <pre>for (init; condition; update) {
+    // Body: executes while condition is true
+}
+
+// Equivalent while loop — same behavior, different style:
+init;
+while (condition) {
+    // body
+    update;
+}</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · for loop</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">//        ┌─init─┐  ┌─condition─┐  ┌─update─┐</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">1</span>;   i <span class="op">&lt;=</span> <span class="nm">5</span>;       i<span class="op">++</span>) {
+        <span class="hl"><span class="fn">printf</span>(<span class="st">"%d "</span>, i);</span>  <span class="cm">// body runs 5 times (i = 1,2,3,4,5)</span>
+    }
+    <span class="cm">// After loop ends, i = 6 (but only accessible if declared before for)</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>1 2 3 4 5 </code></div>
+    <div class="output-explain">
+      <strong>Order of events:</strong> (1) <code>i = 1</code> runs once. (2) Check <code>i &lt;= 5</code> → true → print <code>1</code> → <code>i++</code> → i becomes 2. (3) Check <code>i &lt;= 5</code> → true → print <code>2</code> → <code>i++</code> → i becomes 3. This repeats until i becomes 6, at which point the condition is false and the loop ends.
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- DO-WHILE LOOP -->
+    <h3><span class="h3-num">3</span> The <code>do-while</code> Loop — "Run first, check after"</h3>
+
+    <p>The <code>do-while</code> loop is a variation of the <code>while</code> loop with one key difference: it checks the condition <strong>after</strong> the body runs, not before. This means the loop body is <strong>guaranteed to execute at least once</strong>, regardless of whether the condition is true or false.</p>
+
+    <p>This is useful in real programs for scenarios like menus (show the menu, then ask "do you want to continue?"), or input validation (ask for input at least once, then keep asking if it's invalid).</p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax</div>
+      <pre>do {
+    // Body runs FIRST — always at least once
+    // Then condition is checked
+} while (condition);   // ← semicolon here is mandatory!</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · do-while loop</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> i = <span class="nm">1</span>;
+    <span class="kw">do</span> {
+        <span class="hl"><span class="fn">printf</span>(<span class="st">"%d "</span>, i);</span>    <span class="cm">// executes FIRST — body runs before condition check</span>
+        i<span class="op">++</span>;
+    } <span class="kw">while</span>(i <span class="op">&lt;=</span> <span class="nm">5</span>);        <span class="cm">// condition checked AFTER body — semicolon is required!</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>1 2 3 4 5 </code></div>
+    <div class="output-explain">
+      <strong>Key difference from while:</strong> If <code>i</code> started at <code>10</code>, a <code>while(i &lt;= 5)</code> loop would never run (condition false from the start). But a <code>do-while(i &lt;= 5)</code> with <code>i = 10</code> would still print <code>10</code> once, because the body runs before the condition is ever checked.
+    </div>
+
+    <h3><span class="h3-num">4</span> Choosing the Right Loop</h3>
+    <table class="compare-table">
+      <tr><th>Loop</th><th>Condition checked</th><th>Minimum runs</th><th>Best used when</th></tr>
+      <tr><td>while</td><td>Before each iteration</td><td>0 (may never run)</td><td>Unknown iteration count; condition may be false initially</td></tr>
+      <tr><td>for</td><td>Before each iteration</td><td>0 (may never run)</td><td>Known iteration count; counter-based loops</td></tr>
+      <tr><td>do-while</td><td>After each iteration</td><td>1 (always runs once)</td><td>Body must execute at least once; menu/input scenarios</td></tr>
+    </table>
+
+    <hr class="concept-divider">
+
+    <!-- FOR-EACH LOOP — new from PDF -->
+    <h3><span class="h3-num">5</span> The <code>for-each</code> Loop — "Visit every element"</h3>
+
+    <p>The <code>for-each</code> loop (also called an <em>enhanced for loop</em> in languages like Java, or a <em>range-based for loop</em> in C++) is a special loop designed specifically for <strong>iterating through every element in a collection</strong> — such as an array, list, or set — without manually managing a counter variable.</p>
+
+    <p>Instead of writing <code>for(int i = 0; i &lt; length; i++)</code> and then accessing <code>arr[i]</code>, the for-each loop automatically hands you each element one by one, in order, until the entire collection is exhausted. This makes the code significantly cleaner and eliminates common off-by-one errors.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">Real-life Analogy</div>
+      <p>Imagine a buffet 🍽️ where you walk along the counter and pick up each dish one by one from left to right. You don't need to count how many dishes there are or keep track of which number you're on — you just keep moving forward until there are no more dishes. That's exactly how a for-each loop works: it visits every element automatically, without you needing to manage any index.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>✅ Key Characteristics</h4>
+        <p>Automatically accesses each element one by one. No counter variable needed. Simpler and more readable than index-based loops. The loop ends automatically when all elements have been visited.</p>
+      </div>
+      <div class="card">
+        <h4>⚠️ When NOT to use it</h4>
+        <p>When you need to know the <em>index</em> of the current element. When you need to modify elements while iterating. When you need to iterate in reverse or skip elements. In those cases, the standard <code>for</code> loop is better.</p>
+      </div>
+    </div>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax (C++ / Java style — concept illustration)</div>
+      <pre>// C++ range-based for loop example (for concept understanding):
+for (type element : collection) {
+    // 'element' holds the current item automatically
+    // no index, no manual increment needed
+}
+
+// In C, the equivalent is a standard for loop with array indexing:
+for (int i = 0; i &lt; size; i++) {
+    // access arr[i] — the for-each concept, manually done
+}</pre>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">📘</span>
+      <p><strong>Note for C programmers:</strong> Standard C (C89/C99) does not have a built-in for-each syntax. However, the <em>concept</em> is fundamental — you achieve the same result using a regular <code>for</code> loop over an array. Languages like C++11, Java, Python, and JavaScript all implement this as a native language feature. Understanding the concept now prepares you for all of them.</p>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- NESTED LOOPS — new from PDF -->
+    <h3><span class="h3-num">6</span> Nested Loops — "A loop inside a loop"</h3>
+
+    <p>A <strong>nested loop</strong> is when one loop is placed <em>inside the body</em> of another loop. The outer loop runs its iterations as normal, but for each single iteration of the outer loop, the <strong>inner loop runs completely</strong> — from start to finish — before the outer loop advances to its next iteration.</p>
+
+    <p>This creates a multiplication of work: if the outer loop runs 5 times and the inner loop runs 4 times, the inner loop body executes a total of 5 × 4 = 20 times. This pattern is essential for working with two-dimensional structures like tables, grids, and matrices.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">Real-life Analogy</div>
+      <p>Think of a school timetable 📅. The outer loop is the days of the week (Monday to Friday — 5 iterations). For <em>each day</em>, the inner loop goes through all the class periods (Period 1 to Period 8 — 8 iterations). So the total number of "class slots" is 5 × 8 = 40. The inner loop completes a full school day before the outer loop moves to the next day.</p>
+    </div>
+
+    <div class="how-it-works">
+      <div class="how-label">How nested loops execute — step by step</div>
+      <ol class="steps-list">
+        <li>The <strong>outer loop</strong> initializes and checks its condition → true → enters its body.</li>
+        <li>Inside the outer loop's body, the <strong>inner loop starts</strong>: it initializes, then runs through all of its iterations completely.</li>
+        <li>After the inner loop finishes (its condition becomes false), control returns to the outer loop body.</li>
+        <li>The outer loop updates its counter and checks its condition again.</li>
+        <li>If true, the outer loop body runs again — which means the <strong>inner loop resets and runs fully again</strong> from the beginning.</li>
+        <li>This continues until the outer loop's condition becomes false.</li>
+      </ol>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Nested loops — printing a multiplication table</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">// Outer loop: controls the ROW (runs 3 times)</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">1</span>; i <span class="op">&lt;=</span> <span class="nm">3</span>; i<span class="op">++</span>) {
+
+        <span class="cm">// Inner loop: controls the COLUMN (runs 3 times PER ROW)</span>
+        <span class="kw">for</span>(<span class="kw">int</span> j = <span class="nm">1</span>; j <span class="op">&lt;=</span> <span class="nm">3</span>; j<span class="op">++</span>) {
+            <span class="hl"><span class="fn">printf</span>(<span class="st">"%d\t"</span>, i <span class="op">*</span> j);</span>  <span class="cm">// print i×j with a tab</span>
+        }
+        <span class="fn">printf</span>(<span class="st">"\n"</span>);  <span class="cm">// move to next line after each full row</span>
+    }
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div>
+      <code>1&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;3<br>2&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;6<br>3&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;9</code>
+    </div>
+    <div class="output-explain">
+      <strong>Trace:</strong> Outer i=1 → inner j runs 1,2,3 → prints 1, 2, 3 → newline. Outer i=2 → inner j runs 1,2,3 → prints 2, 4, 6 → newline. Outer i=3 → inner j runs 1,2,3 → prints 3, 6, 9 → newline. Total inner body executions: 3 × 3 = <strong>9 times</strong>.
+    </div>
+
+    <div class="trace-table-wrapper">
+      <div class="trace-table-label">Nested loop execution order — outer (i) vs inner (j)</div>
+      <table class="trace">
+        <tr><th>Outer i</th><th>Inner j</th><th>i × j</th><th>What printed</th></tr>
+        <tr><td>1</td><td>1</td><td>1</td><td>"1\t"</td></tr>
+        <tr><td>1</td><td>2</td><td>2</td><td>"2\t"</td></tr>
+        <tr><td>1</td><td>3</td><td>3</td><td>"3\t" then "\n"</td></tr>
+        <tr><td>2</td><td>1</td><td>2</td><td>"2\t"</td></tr>
+        <tr><td>2</td><td>2</td><td>4</td><td>"4\t"</td></tr>
+        <tr><td>2</td><td>3</td><td>6</td><td>"6\t" then "\n"</td></tr>
+        <tr><td>3</td><td>1</td><td>3</td><td>"3\t"</td></tr>
+        <tr><td>3</td><td>2</td><td>6</td><td>"6\t"</td></tr>
+        <tr class="stop"><td>3</td><td>3</td><td>9</td><td>"9\t" then "\n" — done!</td></tr>
+      </table>
+    </div>
+
+    <div class="card-grid">
+      <div class="card"><h4>📊 Tables &amp; Grids</h4><p>Nested loops are the standard way to generate multiplication tables, seating charts, or any grid-based output where rows and columns each need independent counters.</p></div>
+      <div class="card"><h4>🔢 Matrices</h4><p>In mathematics, a matrix is a 2D grid of numbers. Nested loops let you traverse every row and column — essential for matrix multiplication, rotation, and search.</p></div>
+      <div class="card"><h4>🎨 Pattern Generation</h4><p>Creating star patterns, triangles, or diamond shapes with asterisks uses nested loops — the outer controls the number of rows, the inner controls how many characters to print per row.</p></div>
+      <div class="card"><h4>⚡ Performance Note</h4><p>Be mindful with deep nesting. Two nested loops of 1000 iterations each = 1,000,000 total executions. Three levels = 1 billion. Always ask: can this be solved with fewer nested levels?</p></div>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- INFINITE LOOPS — new detailed content from PDF -->
+    <h3><span class="h3-num">7</span> Infinite Loops — When a Loop Never Stops</h3>
+
+    <p>An <strong>infinite loop</strong> is a loop whose condition never becomes false, causing it to run forever (or until the program is forcibly terminated). While this sounds like a bug — and it very often is — there are also <em>intentional</em> uses of infinite loops in programming, particularly in systems that need to run continuously.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">Real-life Analogy</div>
+      <p>Imagine a security guard 👮 whose instructions are "check the door, then check the door again, then check it again..." with no instruction to ever stop. They would check the door forever because the stopping condition was never defined. An infinite loop in code behaves exactly this way — the program keeps executing the same block endlessly because nothing ever makes the condition false.</p>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>🐛 Accidental Infinite Loop</h4>
+        <p>The most common cause: forgetting to update the loop variable. If <code>i</code> never changes, <code>i &lt;= 5</code> stays true forever. Also caused by logical errors in the condition itself.</p>
+      </div>
+      <div class="card">
+        <h4>✅ Intentional Infinite Loop</h4>
+        <p>Used in operating systems, game loops, server listeners, and embedded devices. These loops run forever by design — they use <code>break</code> or an OS signal to exit when needed.</p>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Common causes of infinite loops</span></div>
+      <pre><span class="cm">// ❌ ACCIDENTAL infinite loop — forgot to increment i</span>
+<span class="kw">int</span> i = <span class="nm">1</span>;
+<span class="kw">while</span>(i <span class="op">&lt;=</span> <span class="nm">5</span>) {
+    <span class="fn">printf</span>(<span class="st">"%d\n"</span>, i);
+    <span class="cm">// i++ is missing! i stays at 1 forever — loop never ends</span>
+}
+
+<span class="cm">// ❌ ACCIDENTAL — condition is always true</span>
+<span class="kw">while</span>(<span class="nm">1</span>) {                    <span class="cm">// 1 is always non-zero (always true)</span>
+    <span class="fn">printf</span>(<span class="st">"Running...\n"</span>);  <span class="cm">// prints forever — no exit condition</span>
+}
+
+<span class="cm">// ✅ INTENTIONAL — infinite loop with a controlled exit</span>
+<span class="kw">while</span>(<span class="nm">1</span>) {
+    <span class="kw">int</span> input;
+    <span class="fn">scanf</span>(<span class="st">"%d"</span>, <span class="hl">&amp;input</span>);
+    <span class="kw">if</span>(input <span class="op">==</span> <span class="nm">0</span>) <span class="kw">break</span>;      <span class="cm">// exit the loop when user types 0</span>
+    <span class="fn">printf</span>(<span class="st">"You entered: %d\n"</span>, input);
+}</pre>
+    </div>
+
+    <div class="callout danger">
+      <span class="callout-icon">🚨</span>
+      <p><strong>How to prevent accidental infinite loops:</strong> Always ensure (1) the loop variable is updated inside the body, (2) the update actually moves toward making the condition false, and (3) the condition itself can eventually evaluate to false. Before writing any loop, ask yourself: <em>"What will make this loop stop?"</em> If you can't answer that clearly, your loop may be infinite.</p>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- PRACTICAL APPLICATIONS — new from PDF -->
+    <h3><span class="h3-num">8</span> Practical Applications of Loops</h3>
+
+    <p>Loops aren't just an academic concept — they are the engine behind almost every real-world program you use daily. Understanding where loops are applied helps you develop the instinct for <em>when</em> to reach for a loop when solving problems.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>📋 Processing Collections of Data</h4>
+        <p>Any time you need to go through a list of items — student grades, product prices, user records — a loop iterates through each item and performs an operation (calculate, compare, display). Without loops, you'd need one statement per item.</p>
+      </div>
+      <div class="card">
+        <h4>🔢 Repeated Calculations</h4>
+        <p>Computing factorials (<code>n!</code>), Fibonacci sequences, finding prime numbers, or calculating interest over many years — all require repeating a calculation step many times. Loops make these feasible even for very large inputs.</p>
+      </div>
+      <div class="card">
+        <h4>🎨 Generating Patterns &amp; Tables</h4>
+        <p>Printing star patterns, multiplication tables, ASCII art, or calendar grids. Nested loops in particular are the standard technique for generating any structured two-dimensional output.</p>
+      </div>
+      <div class="card">
+        <h4>🎮 Game Development Loops</h4>
+        <p>Every video game runs on a <em>game loop</em> — an intentional infinite loop that continuously: reads player input → updates game state → renders the frame → repeats. This loop runs 60+ times per second to create smooth gameplay.</p>
+      </div>
+      <div class="card">
+        <h4>🖥️ Running Simulations</h4>
+        <p>Weather forecasting, physics simulations, and financial models repeat thousands of small calculation steps to simulate how a system evolves over time. Each "time step" in the simulation is one iteration of a loop.</p>
+      </div>
+      <div class="card">
+        <h4>🤖 Automating Repetitive Tasks</h4>
+        <p>Renaming hundreds of files, sending emails to a mailing list, resizing a batch of images, or processing log files — these tasks involve the same operation applied to many items. Loops eliminate the need for human repetition.</p>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✅</span>
+      <p><strong>Developer instinct — when to use a loop:</strong> Anytime you find yourself writing the same (or nearly the same) statement multiple times, that's a signal to use a loop. If you're doing it more than twice, there's almost certainly a loop that expresses it more cleanly. The DRY principle — <em>Don't Repeat Yourself</em> — is one of the most important habits in programming, and loops are your primary tool for following it.</p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(2)">← switch</button>
+      <button class="nav-btn next" onclick="goTo(4)">Next: break &amp; continue →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 4: break & continue
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-4">
+    <div class="step-badge s2">→ Step 2 · Intermediate · Jump Statements</div>
+    <div class="section-label">Control Flow — Jump Statements</div>
+    <h2>break and continue</h2>
+
+    <p>Loops are powerful, but sometimes you need finer control over <em>when</em> to stop or <em>when</em> to skip. The <code>break</code> and <code>continue</code> keywords give you exactly that — they let you override the normal flow of a loop at any point, based on any condition you choose.</p>
+
+    <p>Think of them as emergency controls on a conveyor belt: <code>break</code> is the emergency stop button that halts the entire belt, while <code>continue</code> is a bypass that skips a defective item and immediately moves to the next one without stopping the belt.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>⏹ break — Full Stop</h4>
+        <p><strong>Immediately terminates the entire loop</strong> — no more iterations, no condition check. Execution jumps to the first line of code <em>after</em> the loop's closing brace. Used when you've found what you need, or when a critical condition has been met that makes continuing pointless.</p>
+      </div>
+      <div class="card">
+        <h4>⏭ continue — Skip &amp; Resume</h4>
+        <p><strong>Skips only the current iteration</strong> and jumps immediately to the loop's next iteration (for <code>for</code> loops: runs the update expression first). The loop itself does NOT stop — it continues normally from the next cycle. Used to filter out unwanted values or skip processing for specific cases.</p>
+      </div>
+    </div>
+
+    <hr class="concept-divider">
+
+    <h3><span class="h3-num">1</span> <code>break</code> — Exiting a Loop Early</h3>
+
+    <p>The <code>break</code> statement causes the program to immediately jump out of the innermost enclosing loop (or switch) and continue from the line right after the closing brace. It's commonly used in search algorithms: once you've found what you're looking for, there's no need to keep iterating.</p>
+
+    <div class="how-it-works">
+      <div class="how-label">What happens when break executes</div>
+      <ol class="steps-list">
+        <li>The <code>break</code> keyword is encountered inside the loop body.</li>
+        <li>The CPU immediately abandons the current iteration — the rest of the loop body does NOT run.</li>
+        <li>The condition is NOT checked again.</li>
+        <li>Execution jumps to the first statement after the loop's closing <code>}</code> brace.</li>
+        <li>The loop variable retains whatever value it had when break was hit.</li>
+      </ol>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · break statement</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">// Loop is set to run from 1 to 10...</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">1</span>; i <span class="op">&lt;=</span> <span class="nm">10</span>; i<span class="op">++</span>) {
+        <span class="kw">if</span>(i <span class="op">==</span> <span class="nm">5</span>) {
+            <span class="hl"><span class="kw">break</span>;</span>    <span class="cm">// ...but when i hits 5, we STOP immediately</span>
+        }             <span class="cm">// printf below is NOT reached for i=5 or beyond</span>
+        <span class="fn">printf</span>(<span class="st">"%d "</span>, i);
+    }
+    <span class="cm">// Execution continues here after break</span>
+    <span class="fn">printf</span>(<span class="st">"\nLoop ended."</span>);
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>1 2 3 4 <br>Loop ended.</code></div>
+
+    <div class="trace-table-wrapper">
+      <div class="trace-table-label">break — iteration trace</div>
+      <table class="trace">
+        <tr><th>i</th><th>Condition i==5?</th><th>Action</th></tr>
+        <tr><td>1</td><td>No</td><td>Print "1 "</td></tr>
+        <tr><td>2</td><td>No</td><td>Print "2 "</td></tr>
+        <tr><td>3</td><td>No</td><td>Print "3 "</td></tr>
+        <tr><td>4</td><td>No</td><td>Print "4 "</td></tr>
+        <tr class="stop"><td>5</td><td>YES → break</td><td>Loop terminates. printf NOT reached for i=5</td></tr>
+        <tr class="skip"><td>6–10</td><td>—</td><td>Never reached — loop is already done</td></tr>
+      </table>
+    </div>
+
+    <hr class="concept-divider">
+
+    <h3><span class="h3-num">2</span> <code>continue</code> — Skipping an Iteration</h3>
+
+    <p>The <code>continue</code> statement is more surgical than <code>break</code>. Instead of ending the loop, it ends only the <strong>current iteration</strong> and immediately jumps to the next one. In a <code>for</code> loop, it jumps to the update expression (<code>i++</code>) and then rechecks the condition. In a <code>while</code> loop, it jumps directly to the condition check.</p>
+
+    <p>This is ideal for filtering: "process everything <em>except</em> this specific case." Instead of writing complex nested <code>if-else</code> logic inside the loop, you use <code>continue</code> to cleanly skip unwanted iterations.</p>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · continue statement</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">1</span>; i <span class="op">&lt;=</span> <span class="nm">5</span>; i<span class="op">++</span>) {
+        <span class="kw">if</span>(i <span class="op">==</span> <span class="nm">3</span>) {
+            <span class="hl"><span class="kw">continue</span>;</span>   <span class="cm">// skip the REST of this iteration when i == 3</span>
+        }             <span class="cm">// for loops: jumps to i++ (update), then rechecks condition</span>
+        <span class="fn">printf</span>(<span class="st">"%d "</span>, i);  <span class="cm">// this line is SKIPPED only when i == 3</span>
+    }
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>1 2 4 5 </code></div>
+
+    <div class="trace-table-wrapper">
+      <div class="trace-table-label">continue — iteration trace</div>
+      <table class="trace">
+        <tr><th>i</th><th>Condition i==3?</th><th>Action</th></tr>
+        <tr><td>1</td><td>No</td><td>Print "1 " → i++</td></tr>
+        <tr><td>2</td><td>No</td><td>Print "2 " → i++</td></tr>
+        <tr class="skip"><td>3</td><td>YES → continue</td><td>Skip printf, jump to i++ → i becomes 4</td></tr>
+        <tr><td>4</td><td>No</td><td>Print "4 " → i++</td></tr>
+        <tr><td>5</td><td>No</td><td>Print "5 " → i++</td></tr>
+        <tr class="stop"><td>6</td><td>—</td><td>i &lt;= 5 is false → loop ends normally</td></tr>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✅</span>
+      <p><strong>Key distinction:</strong> <code>break</code> stops the loop permanently. <code>continue</code> only pauses one iteration and resumes from the next. If the loop were a song playlist: <code>break</code> turns off the music entirely; <code>continue</code> skips only the current song.</p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(3)">← Loops</button>
+      <button class="nav-btn next" onclick="goTo(5)">Next: Pointers →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 5: POINTERS
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-5">
+    <div class="step-badge s3">→ Step 3 · Advanced · Pointers</div>
+    <div class="section-label">Pointers in C</div>
+    <h2>What is a Pointer?</h2>
+
+    <p>This is the concept that makes C unique and powerful — and also the one that beginners fear the most. But pointers are simpler than they appear once you understand what they actually are. A pointer is nothing more than a variable that <strong>stores a memory address</strong>. Not a value. An <em>address</em> — the location in memory where a value is stored.</p>
+
+    <p>To truly understand pointers, you first need to understand how your computer stores variables in memory.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">The Memory = Apartment Building Analogy</div>
+      <p>Imagine computer memory as a very tall apartment building 🏢 with millions of floors (memory cells). Each floor has a unique number printed on the door — that's the <strong>memory address</strong>. A variable like <code>int x = 10</code> rents out one floor; the value <code>10</code> lives inside that apartment, and the apartment's door number (e.g., <code>0x2004</code>) is its address.</p>
+      <p>Now, a <strong>pointer</strong> is like a notepad 📝 where you write down someone's apartment number. The notepad itself doesn't contain the person — it contains the <em>address of where the person lives</em>. When you want to visit them, you look at the notepad, find the address, go to that floor, and interact with whoever is there. In C, "visiting" through a pointer is called <strong>dereferencing</strong>.</p>
+    </div>
+
+    <h3><span class="h3-num">1</span> How Memory Works in C</h3>
+
+    <p>Every variable you declare in C is stored at a specific location in your computer's RAM. When you write <code>int x = 10</code>, the compiler allocates a block of memory (typically 4 bytes for an integer), stores the value <code>10</code> in those bytes, and assigns a memory address to identify that location. This address is a hexadecimal number like <code>0x2004</code>.</p>
+
+    <div class="memory-diagram">
+      <div class="mem-title">RAM Layout — What happens when you declare int x = 10</div>
+      <div style="color:rgba(247,244,238,0.5);font-size:13px;text-align:center;margin-bottom:18px;font-family:'DM Mono',monospace">
+        Each cell = 1 byte of RAM &nbsp;|&nbsp; Address increases →
+      </div>
+      <div class="mem-row">
+        <div class="mem-cell" style="opacity:0.3"><span class="mem-val">??</span><span class="mem-addr">0x2000</span><span class="mem-name">unused</span></div>
+        <div class="mem-cell" style="opacity:0.3"><span class="mem-val">??</span><span class="mem-addr">0x2001</span><span class="mem-name">unused</span></div>
+        <div class="mem-cell" style="opacity:0.3"><span class="mem-val">??</span><span class="mem-addr">0x2002</span><span class="mem-name">unused</span></div>
+        <div class="mem-cell" style="opacity:0.3"><span class="mem-val">??</span><span class="mem-addr">0x2003</span><span class="mem-name">unused</span></div>
+        <div class="mem-cell active"><span class="mem-val">10</span><span class="mem-addr">0x2004</span><span class="mem-name">int x</span></div>
+        <div class="mem-cell" style="opacity:0.3"><span class="mem-val">??</span><span class="mem-addr">0x2008</span><span class="mem-name">unused</span></div>
+      </div>
+      <div class="mem-legend">
+        <div class="mem-legend-item"><div class="mem-legend-dot" style="background:rgba(200,112,58,0.5);border:1.5px solid var(--accent)"></div><span>int x lives at address 0x2004. Its value is 10.</span></div>
+        <div class="mem-legend-item"><div class="mem-legend-dot" style="background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.15)"></div><span>Other memory cells are used by other variables or are free.</span></div>
+      </div>
+    </div>
+
+    <h3><span class="h3-num">2</span> Declaring a Pointer — Two Key Operators</h3>
+
+    <p>To work with pointers, you need to understand two operators: the <strong>address-of operator <code>&amp;</code></strong> and the <strong>dereference operator <code>*</code></strong>. These are the two fundamental tools of pointer programming.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>📌 <code>&amp;</code> — Address-of Operator</h4>
+        <p>When placed before a variable, <code>&amp;x</code> gives you the <strong>memory address</strong> where <code>x</code> is stored. It does not give you the value — it gives you the location. You use this to initialize a pointer: <code>ptr = &amp;x</code> means "make ptr hold the address of x."</p>
+      </div>
+      <div class="card">
+        <h4>🔍 <code>*</code> — Dereference Operator</h4>
+        <p>When placed before a pointer variable, <code>*ptr</code> means "go to the address stored in ptr, and read the value there." This is called <strong>dereferencing</strong> — following the pointer to its destination. It can also be used to <em>write</em>: <code>*ptr = 99</code> changes the value at that address.</p>
+      </div>
+    </div>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax — Declaring and Using a Pointer</div>
+      <pre>int x = 10;       // declare a normal integer variable
+int *ptr;          // declare a pointer to an int  (* means "pointer to")
+ptr = &x;          // store the address of x inside ptr
+
+// Now:
+// ptr      → holds the address of x (e.g., 0x2004)
+// *ptr     → follows that address and reads the value: 10
+// &x       → also the address of x (same as ptr after assignment)</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Declaring &amp; Printing a Pointer</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> x = <span class="nm">10</span>;      <span class="cm">// x is an integer variable. Stored somewhere in RAM.</span>
+    <span class="kw">int</span> *ptr;         <span class="cm">// ptr is a pointer variable. Can hold an int's address.</span>
+    ptr = <span class="hl">&amp;x</span>;        <span class="cm">// &amp;x = "the memory address of x". Store it in ptr.</span>
+
+    <span class="cm">// Now ptr "points to" x — it knows where x lives in memory</span>
+    <span class="fn">printf</span>(<span class="st">"Value of x          = %d\n"</span>,  x);      <span class="cm">// prints 10</span>
+    <span class="fn">printf</span>(<span class="st">"Address of x (&amp;x)   = %p\n"</span>, <span class="hl">&amp;x</span>);     <span class="cm">// prints hex address like 0x7ffee2004</span>
+    <span class="fn">printf</span>(<span class="st">"Value in ptr        = %p\n"</span>,  <span class="hl">ptr</span>);    <span class="cm">// same address — ptr holds &amp;x</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output (exact address varies per run and system)</div><code>Value of x          = 10<br>Address of x (&amp;x)   = 0x7ffee2004<br>Value in ptr        = 0x7ffee2004</code></div>
+    <div class="output-explain">
+      <strong>Notice:</strong> Both <code>&amp;x</code> and <code>ptr</code> print the same address! That's because after <code>ptr = &amp;x</code>, the pointer and the original variable are <em>linked</em> through the same address. The exact address (like <code>0x7ffee2004</code>) changes every time the program runs — the OS assigns RAM locations dynamically.
+    </div>
+
+    <!-- MEMORY DIAGRAM: POINTER -->
+    <div class="memory-diagram">
+      <div class="mem-title">Memory Layout — int x and int *ptr side by side</div>
+      <div class="mem-row">
+        <div class="mem-cell active">
+          <span class="mem-val">10</span>
+          <span class="mem-addr">0x2004</span>
+          <span class="mem-name">int x</span>
+        </div>
+        <div class="ptr-arrow">←</div>
+        <div class="mem-cell ptr">
+          <span class="mem-val" style="font-size:13px">0x2004</span>
+          <span class="mem-addr">0x3010</span>
+          <span class="mem-name">int *ptr</span>
+        </div>
+      </div>
+      <div style="color:rgba(247,244,238,0.5);font-size:13px;text-align:center;margin-top:14px;font-family:'DM Mono',monospace;line-height:1.9">
+        x lives at 0x2004 and holds value 10<br>
+        ptr lives at 0x3010 and holds the value 0x2004 (x's address)<br>
+        ptr "points to" x — it knows where x is
+      </div>
+      <div class="mem-legend">
+        <div class="mem-legend-item"><div class="mem-legend-dot" style="background:rgba(200,112,58,0.5);border:1.5px solid var(--accent)"></div><span>int x — a regular variable storing the value 10</span></div>
+        <div class="mem-legend-item"><div class="mem-legend-dot" style="background:rgba(74,124,111,0.5);border:1.5px solid var(--accent2)"></div><span>int *ptr — stores x's address (0x2004), NOT the value 10</span></div>
+      </div>
+    </div>
+
+    <hr class="concept-divider">
+
+    <h3><span class="h3-num">3</span> Dereferencing — Reading a Value Through a Pointer</h3>
+
+    <p>Once a pointer holds an address, you can use the <code>*</code> (dereference) operator to <em>follow that address</em> and access the value stored there. Think of dereferencing as "sending a letter to the address on the envelope — the reply you get back is the value at that address."</p>
+
+    <p>Dereferencing can also be used to <strong>modify</strong> the value at an address — not just read it. This is what makes pointers so powerful: you can change a variable's value from anywhere in the program, as long as you have a pointer to it.</p>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Dereferencing a Pointer (Read &amp; Write)</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> x = <span class="nm">20</span>;
+    <span class="kw">int</span> *p = <span class="hl">&amp;x</span>;    <span class="cm">// p now points to x</span>
+
+    <span class="cm">// READING via pointer</span>
+    <span class="fn">printf</span>(<span class="st">"Value of x via *p = %d\n"</span>, <span class="hl">*p</span>);  <span class="cm">// *p = "go to address in p, read value" → 20</span>
+
+    <span class="cm">// WRITING via pointer — modifies x through its address!</span>
+    <span class="hl">*p = <span class="nm">99</span>;</span>   <span class="cm">// "go to address in p, write 99 there" — x is now 99!</span>
+
+    <span class="fn">printf</span>(<span class="st">"New value of x     = %d\n"</span>, x);   <span class="cm">// x is now 99 — changed via pointer!</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>Value of x via *p = 20<br>New value of x     = 99</code></div>
+    <div class="output-explain">
+      <strong>This is the power of pointers:</strong> We changed <code>x</code>'s value to <code>99</code> without ever writing <code>x = 99</code>. We did it by following the pointer to x's address and overwriting the value there. The variable <code>x</code> and <code>*p</code> refer to the <em>same memory cell</em> — they're two names for the same location.
+    </div>
+
+    <div class="memory-diagram">
+      <div class="mem-title">Dereferencing: *p reads/writes the value at p's address</div>
+      <div style="display:flex;gap:60px;justify-content:center;flex-wrap:wrap">
+        <div>
+          <div style="color:rgba(247,244,238,0.4);font-size:12px;text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Reading *p</div>
+          <div class="mem-row" style="margin-bottom:0">
+            <div class="mem-cell ptr"><span class="mem-val" style="font-size:12px">0x5020</span><span class="mem-addr">p's address</span><span class="mem-name">int *p</span></div>
+            <div class="ptr-arrow">→</div>
+            <div class="mem-cell active"><span class="mem-val">20</span><span class="mem-addr">0x5020</span><span class="mem-name">int x</span></div>
+          </div>
+          <div style="color:rgba(247,244,238,0.4);font-size:12px;text-align:center;margin-top:8px">*p gives us → 20</div>
+        </div>
+        <div>
+          <div style="color:rgba(247,244,238,0.4);font-size:12px;text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Writing *p = 99</div>
+          <div class="mem-row" style="margin-bottom:0">
+            <div class="mem-cell ptr"><span class="mem-val" style="font-size:12px">0x5020</span><span class="mem-addr">p's address</span><span class="mem-name">int *p</span></div>
+            <div class="ptr-arrow">→</div>
+            <div class="mem-cell active"><span class="mem-val">99</span><span class="mem-addr">0x5020</span><span class="mem-name">int x</span></div>
+          </div>
+          <div style="color:rgba(247,244,238,0.4);font-size:12px;text-align:center;margin-top:8px">x is now 99 — changed via pointer!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">🔑</span>
+      <p><strong>The three pointer operations summarized:</strong><br>
+      &nbsp; <code>int *ptr;</code> — declares a pointer variable (can hold an int address)<br>
+      &nbsp; <code>ptr = &amp;x;</code> — assigns x's address to the pointer (<code>&amp;</code> = address-of)<br>
+      &nbsp; <code>*ptr</code> — reads OR writes the value at the stored address (<code>*</code> = dereference)</p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(4)">← break &amp; continue</button>
+      <button class="nav-btn next" onclick="goTo(6)">Next: Pointers with Functions →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 6: POINTERS + FUNCTIONS
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-6">
+    <div class="step-badge s3">→ Step 3 · Advanced · Call by Reference</div>
+    <div class="section-label">Pointers in C</div>
+    <h2>Pointers with Functions — Call by Reference</h2>
+
+    <p>You now know what pointers are. Here is where they become truly useful. By default, when you pass a variable to a function in C, the function receives a <strong>copy</strong> of that variable — any changes made inside the function affect only the local copy and are lost when the function returns. This is called <strong>Call by Value</strong>.</p>
+
+    <p>But what if you need a function to actually modify the original variable? That's where pointers come in. By passing the <strong>memory address</strong> of a variable instead of its value, the function can directly access and modify the original data. This is called <strong>Call by Reference</strong>.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">The Document Analogy</div>
+      <p><strong>Call by Value</strong> is like making a photocopy of a document and giving it to a colleague. They can write on the copy all they want — your original is safe and unchanged. When they hand back the copy, you still have your original untouched document.</p>
+      <p><strong>Call by Reference</strong> is like giving them the <em>original document</em>. Any marks, corrections, or changes they make are directly on the real thing. When you get the document back, it reflects all their edits. This is what passing a pointer to a function achieves.</p>
+    </div>
+
+    <h3><span class="h3-num">1</span> Call by Value — The Problem</h3>
+
+    <p>First, let's see why call by value is insufficient for some tasks. Suppose you want to write a function that doubles a variable's value:</p>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Call by Value — changes are lost!</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="cm">// This function receives a COPY of n — not the original</span>
+<span class="kw">void</span> <span class="fn">doubleValue</span>(<span class="kw">int</span> n) {
+    n = n <span class="op">*</span> <span class="nm">2</span>;     <span class="cm">// only the LOCAL copy is doubled — original untouched</span>
+}                  <span class="cm">// n is destroyed when function returns</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> x = <span class="nm">5</span>;
+    <span class="fn">doubleValue</span>(x);  <span class="cm">// passes COPY of x (value 5)</span>
+    <span class="fn">printf</span>(<span class="st">"%d"</span>, x); <span class="cm">// still 5! The function changed nothing in main</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>5</code></div>
+    <div class="output-explain">
+      <strong>Why?</strong> When <code>doubleValue(x)</code> is called, C creates a <em>new local variable</em> <code>n</code> inside the function and copies x's value (5) into it. The function doubles <code>n</code> to 10, but this only affects the local <code>n</code>. When the function returns, <code>n</code> is destroyed. The original <code>x</code> in main is completely untouched.
+    </div>
+
+    <h3><span class="h3-num">2</span> Call by Reference — The Solution</h3>
+
+    <p>To allow a function to modify the original variable, we pass its <strong>address</strong> using <code>&amp;x</code>. The function parameter becomes a pointer (<code>int *n</code>) that holds that address. Inside the function, we dereference the pointer (<code>*n</code>) to reach and modify the actual variable in the caller's memory space.</p>
+
+    <div class="how-it-works">
+      <div class="how-label">How call by reference works step by step</div>
+      <ol class="steps-list">
+        <li>In <code>main()</code>: call <code>swap(&amp;x, &amp;y)</code> — you're passing the <em>addresses</em> of x and y, not the values.</li>
+        <li>The function receives these addresses as pointer parameters: <code>int *a</code> holds x's address, <code>int *b</code> holds y's address.</li>
+        <li>Inside the function: <code>*a</code> and <code>*b</code> dereference the pointers, giving direct access to x and y in main's memory.</li>
+        <li>Swapping via <code>temp = *a; *a = *b; *b = temp;</code> modifies the actual values of x and y — not copies.</li>
+        <li>When the function returns, x and y in <code>main()</code> hold the swapped values permanently.</li>
+      </ol>
+    </div>
+
+    <div class="memory-diagram">
+      <div class="mem-title">Call by Reference — swap function accesses x and y directly via their addresses</div>
+      <div style="display:flex;gap:48px;justify-content:center;flex-wrap:wrap;align-items:flex-start">
+        <div>
+          <div style="color:rgba(247,244,238,0.4);font-size:12px;text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Before swap(&amp;x, &amp;y)</div>
+          <div class="mem-row" style="margin-bottom:0">
+            <div class="mem-cell active"><span class="mem-val">5</span><span class="mem-addr">0x1000</span><span class="mem-name">x in main</span></div>
+            <div style="width:20px"></div>
+            <div class="mem-cell ptr"><span class="mem-val">10</span><span class="mem-addr">0x1004</span><span class="mem-name">y in main</span></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;color:var(--accent);font-size:36px;padding-top:20px">⇄</div>
+        <div>
+          <div style="color:rgba(247,244,238,0.4);font-size:12px;text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">After swap(&amp;x, &amp;y)</div>
+          <div class="mem-row" style="margin-bottom:0">
+            <div class="mem-cell ptr"><span class="mem-val">10</span><span class="mem-addr">0x1000</span><span class="mem-name">x in main</span></div>
+            <div style="width:20px"></div>
+            <div class="mem-cell active"><span class="mem-val">5</span><span class="mem-addr">0x1004</span><span class="mem-name">y in main</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="color:rgba(247,244,238,0.45);font-size:13px;text-align:center;margin-top:16px;line-height:1.8">
+        swap() received addresses 0x1000 and 0x1004<br>
+        It used *a and *b to directly swap the values at those addresses in main's memory
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Call by Reference — Swap via Pointers</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="cm">// Parameters are POINTERS — they receive addresses, not values</span>
+<span class="kw">void</span> <span class="fn">swap</span>(<span class="kw">int</span> *a, <span class="kw">int</span> *b) {
+    <span class="kw">int</span> temp;
+    temp  = <span class="hl">*a</span>;   <span class="cm">// read the value AT address a (x's value = 5), save it</span>
+    <span class="hl">*a = *b</span>;      <span class="cm">// write the value at b (y=10) into the address a (where x lives)</span>
+    <span class="hl">*b = temp</span>;    <span class="cm">// write the saved value (5) into the address b (where y lives)</span>
+    <span class="cm">// At this point: *a = 10 (x changed) and *b = 5 (y changed)</span>
+}
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> x = <span class="nm">5</span>, y = <span class="nm">10</span>;
+    <span class="fn">printf</span>(<span class="st">"Before: x=%d, y=%d\n"</span>, x, y);
+
+    <span class="fn">swap</span>(<span class="hl">&amp;x, &amp;y</span>);   <span class="cm">// pass ADDRESSES — &amp;x = "where x lives", &amp;y = "where y lives"</span>
+
+    <span class="fn">printf</span>(<span class="st">"After:  x=%d, y=%d\n"</span>, x, y);  <span class="cm">// x and y are genuinely swapped!</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>Before: x=5, y=10<br>After:  x=10, y=5</code></div>
+    <div class="output-explain">
+      <strong>What happened inside swap():</strong> <code>temp = *a</code> → temp = 5. <code>*a = *b</code> → x becomes 10. <code>*b = temp</code> → y becomes 5. Since <code>a</code> and <code>b</code> hold the actual addresses of x and y, every change made through <code>*a</code> and <code>*b</code> directly modifies the original variables in <code>main()</code>. The swap is real and permanent.
+    </div>
+
+    <div class="trace-table-wrapper">
+      <div class="trace-table-label">Line-by-line trace of swap() — what's in memory at each step</div>
+      <table class="trace">
+        <tr><th>Statement</th><th>temp</th><th>*a (= x)</th><th>*b (= y)</th><th>What happened</th></tr>
+        <tr><td>Enter swap</td><td>undefined</td><td>5</td><td>10</td><td>a = &amp;x (0x1000), b = &amp;y (0x1004)</td></tr>
+        <tr><td>temp = *a</td><td>5</td><td>5</td><td>10</td><td>Saved x's value (5) into temp</td></tr>
+        <tr class="hi"><td>*a = *b</td><td>5</td><td>10</td><td>10</td><td>x's memory cell now holds 10</td></tr>
+        <tr class="hi"><td>*b = temp</td><td>5</td><td>10</td><td>5</td><td>y's memory cell now holds 5</td></tr>
+        <tr class="stop"><td>return</td><td>—</td><td>10</td><td>5</td><td>x = 10, y = 5 — permanently swapped</td></tr>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✅</span>
+      <p><strong>Real-world use cases of call by reference:</strong> Returning multiple values from a function (C functions can only return one value natively, but with pointers you can modify many variables). Efficient passing of large data structures — instead of copying thousands of bytes, you pass a single 8-byte address. Dynamic memory allocation with <code>malloc()</code> — entirely pointer-based.</p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(5)">← Pointers</button>
+      <button class="nav-btn next" onclick="goTo(7)">Next: Practice Problems →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 7: PRACTICE
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-7">
+    <div class="section-label">Practice Time</div>
+    <h2>Practice Problems</h2>
+    <p>Now it's your turn to apply what you've learned. Try each problem on your own first — struggle is where learning happens. Only use the hint if you're truly stuck. Do <em>not</em> look for full solutions online; even a partial attempt is more valuable than copying a solution.</p>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">01</div><div class="practice-title">Classify a Number: Positive, Negative, or Zero</div></div>
+        <div class="practice-difficulty diff-easy">Easy</div>
+      </div>
+      <div class="practice-body">
+        <p>Write a C program that reads an integer from the user and prints whether it is <strong>Positive</strong>, <strong>Negative</strong>, or <strong>Zero</strong>. Cover all three cases and make sure the correct message prints for each. Test with inputs: 7, -3, 0.</p>
+        <button class="hint-btn" onclick="toggleHint('h1')">💡 Show Hint</button>
+        <div class="hint-content" id="h1">You'll need three mutually exclusive branches. Use <code>if (num &gt; 0)</code> for positive, <code>else if (num &lt; 0)</code> for negative, and a final <code>else</code> for zero — since zero is neither positive nor negative. You don't need a loop; one set of if/else-if/else is all you need. Remember: use <code>==</code> (equality check), not <code>=</code> (assignment) in conditions.</div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">02</div><div class="practice-title">Sum of First N Natural Numbers</div></div>
+        <div class="practice-difficulty diff-easy">Easy</div>
+      </div>
+      <div class="practice-body">
+        <p>Write a program using a <strong><code>for</code> loop</strong> that reads a number N from the user and computes the sum of all integers from 1 to N (inclusive). Print the result. For example, if N=5, output should be 15 (1+2+3+4+5=15).</p>
+        <button class="hint-btn" onclick="toggleHint('h2')">💡 Show Hint</button>
+        <div class="hint-content" id="h2">Create a variable <code>sum = 0</code> before the loop — this is your accumulator. Run a <code>for</code> loop where <code>i</code> goes from 1 to N (<code>i &lt;= N</code>). Inside the loop, add i to sum on every iteration: <code>sum = sum + i;</code> (or shorthand <code>sum += i;</code>). After the loop completes, print <code>sum</code>. The loop runs exactly N times.</div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">03</div><div class="practice-title">Print Only Odd Numbers Using continue</div></div>
+        <div class="practice-difficulty diff-easy">Easy</div>
+      </div>
+      <div class="practice-body">
+        <p>Loop from 1 to 20 and print only the <strong>odd numbers</strong>. The twist: you must use the <code>continue</code> statement to skip even numbers — do not use an if-else that wraps the printf. Structure it so the code detects an even number and skips, then unconditionally prints otherwise.</p>
+        <button class="hint-btn" onclick="toggleHint('h3')">💡 Show Hint</button>
+        <div class="hint-content" id="h3">Inside the loop: <code>if(i % 2 == 0) continue;</code> — this line detects even numbers and skips the rest of that iteration. The <code>printf()</code> on the very next line (after the if-block) only runs when the number is <em>odd</em>, because even iterations never reach it. Think of <code>continue</code> as a "filter" that rejects certain values before the main processing happens.</div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">04</div><div class="practice-title">Modify a Variable's Value Using a Pointer</div></div>
+        <div class="practice-difficulty diff-medium">Medium</div>
+      </div>
+      <div class="practice-body">
+        <p>Declare an integer variable <code>num = 50</code>. Without ever writing <code>num = anything</code> directly, use a pointer to change <code>num</code>'s value to 100. Print the value of <code>num</code> before and after the change to confirm it worked. This tests your understanding of dereferencing.</p>
+        <button class="hint-btn" onclick="toggleHint('h4')">💡 Show Hint</button>
+        <div class="hint-content" id="h4">Declare a pointer: <code>int *p = &amp;num;</code> — this makes <code>p</code> hold the address of <code>num</code>. To change <code>num</code> without naming it directly, use the dereference operator: <code>*p = 100;</code>. This means "go to the address stored in p (which is num's address) and write 100 there." After this line, <code>printf("%d", num)</code> will show 100, even though you never wrote <code>num = 100</code>.</div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">05</div><div class="practice-title">Write a doubleIt() Function Using Call by Reference</div></div>
+        <div class="practice-difficulty diff-medium">Medium</div>
+      </div>
+      <div class="practice-body">
+        <p>Write a function <code>doubleIt(int *n)</code> that doubles the value of the variable passed to it. In <code>main()</code>, declare <code>int num = 7</code>, call <code>doubleIt</code>, and print num before and after. The result should show <code>num</code> changed to 14 — not just inside the function, but in <code>main()</code> as well.</p>
+        <button class="hint-btn" onclick="toggleHint('h5')">💡 Show Hint</button>
+        <div class="hint-content" id="h5">The function signature must be <code>void doubleIt(int *n)</code> — the parameter is a pointer. Inside the function body, write <code>*n = *n * 2;</code> — this reads the current value at the address, doubles it, and writes it back to the same address. In main, you must call it with <code>doubleIt(&amp;num);</code> — the <code>&amp;</code> is essential, it passes the address of <code>num</code>, not a copy of it. Without <code>&amp;</code>, the change would be lost.</div>
+      </div>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(6)">← Pointers with Functions</button>
+      <button class="nav-btn next" onclick="goTo(8)">Next: Mini Quiz →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 8: QUIZ
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-8">
+    <div class="section-label">Knowledge Check</div>
+    <h2>Mini Quiz</h2>
+    <p>Answer all 5 questions based on what you've learned. Select your answer, then click <strong>Check Answers</strong> to see your score, correct answers, and which ones you got wrong.</p>
+
+    <div id="quizForm">
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q1.</span> What does the <code>else</code> block in an if-else statement execute?</div>
+        <div class="quiz-options" id="q1">
+          <div class="quiz-option" onclick="selectOpt(this,'q1','a')"><div class="opt-circle">A</div> When the if condition is true</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q1','b')"><div class="opt-circle">B</div> When the if condition is false</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q1','c')"><div class="opt-circle">C</div> Always, regardless of the condition</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q1','d')"><div class="opt-circle">D</div> Only when the variable equals zero</div>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q2.</span> What happens if you omit <code>break</code> in a <code>switch</code> case?</div>
+        <div class="quiz-options" id="q2">
+          <div class="quiz-option" onclick="selectOpt(this,'q2','a')"><div class="opt-circle">A</div> A compilation error occurs</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q2','b')"><div class="opt-circle">B</div> The program crashes at runtime</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q2','c')"><div class="opt-circle">C</div> Execution falls through into the next case(s)</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q2','d')"><div class="opt-circle">D</div> Only the default case runs</div>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q3.</span> Which loop type is guaranteed to execute its body at least once, even if the condition is initially false?</div>
+        <div class="quiz-options" id="q3">
+          <div class="quiz-option" onclick="selectOpt(this,'q3','a')"><div class="opt-circle">A</div> while loop</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q3','b')"><div class="opt-circle">B</div> for loop</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q3','c')"><div class="opt-circle">C</div> do-while loop</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q3','d')"><div class="opt-circle">D</div> All loops behave identically</div>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q4.</span> What does the expression <code>&amp;x</code> return in C?</div>
+        <div class="quiz-options" id="q4">
+          <div class="quiz-option" onclick="selectOpt(this,'q4','a')"><div class="opt-circle">A</div> The value currently stored in x</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q4','b')"><div class="opt-circle">B</div> The memory address where x is stored</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q4','c')"><div class="opt-circle">C</div> A new pointer variable named x</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q4','d')"><div class="opt-circle">D</div> The size of x in bytes</div>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q5.</span> Given <code>void swap(int *a, int *b)</code>, what is the correct way to call this function from main with variables <code>x</code> and <code>y</code>?</div>
+        <div class="quiz-options" id="q5">
+          <div class="quiz-option" onclick="selectOpt(this,'q5','a')"><div class="opt-circle">A</div> swap(x, y)</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q5','b')"><div class="opt-circle">B</div> swap(*x, *y)</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q5','c')"><div class="opt-circle">C</div> swap(&amp;x, &amp;y)</div>
+          <div class="quiz-option" onclick="selectOpt(this,'q5','d')"><div class="opt-circle">D</div> swap(int *x, int *y)</div>
+        </div>
+      </div>
+
+      <button class="quiz-submit-btn" onclick="checkQuiz()">✔ Check Answers</button>
+    </div>
+
+    <div class="quiz-result" id="quizResult">
+      <h4 id="quizScore"></h4>
+      <p id="quizFeedback"></p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(7)">← Practice Problems</button>
+      <button class="nav-btn next" onclick="goTo(9)">Next: Summary →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 9: SUMMARY
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-9">
+    <div class="section-label">Module Complete 🎉</div>
+    <h2>Key Takeaways</h2>
+    <p>You've completed the module. Here are the core concepts condensed into clear takeaways — bookmark this page and come back to it anytime you need a quick refresher.</p>
+
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-icon s1">🔀</div>
+        <div class="summary-text">
+          <strong>if / if-else</strong>
+          The most basic decision tool. <code>if</code> runs a block when its condition is true; <code>else</code> runs when it's false. Use <code>else if</code> for more than two outcomes. Exactly one branch always executes.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s1">🔡</div>
+        <div class="summary-text">
+          <strong>switch</strong>
+          Evaluates one variable and jumps to the matching <code>case</code>. Cleaner than long if-else chains for specific value matching. Always use <code>break</code> to prevent fall-through. <code>default</code> is the catch-all.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s2">🔄</div>
+        <div class="summary-text">
+          <strong>while loop</strong>
+          Checks condition <em>before</em> each iteration. May run zero times if the condition starts false. Use when iteration count is unknown. Always update the loop variable inside the body.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s2">🔢</div>
+        <div class="summary-text">
+          <strong>for loop</strong>
+          Packs init, condition, and update into one clean line. Best for counted loops where iterations are known. Internally identical to <code>while</code>, just more compact and readable.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s2">⚡</div>
+        <div class="summary-text">
+          <strong>do-while loop</strong>
+          Body runs <em>first</em>, condition checked <em>after</em>. Guaranteed to execute at least once. Ideal for menus and input prompts. Don't forget the semicolon after the closing condition.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s2">⏹</div>
+        <div class="summary-text">
+          <strong>break &amp; continue</strong>
+          <code>break</code> exits the entire loop immediately. <code>continue</code> skips only the current iteration and resumes the next. Both only affect the <em>innermost</em> enclosing loop.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s3">📍</div>
+        <div class="summary-text">
+          <strong>Pointers</strong>
+          Variables that store memory addresses. <code>&amp;x</code> gets x's address. <code>int *p</code> declares a pointer. <code>*p</code> dereferences — reads or writes the value at the stored address.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s4">🔄</div>
+        <div class="summary-text">
+          <strong>Call by Reference</strong>
+          Pass <code>&amp;x</code> to a function so it can modify the original. The function receives a pointer; uses <code>*ptr</code> to access actual memory. Essential for swap functions and returning multiple values.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s3">🗂️</div>
+        <div class="summary-text">
+          <strong>Arrays</strong>
+          A collection of same-type elements stored in contiguous memory. Declared as <code>int arr[5]</code>. Index starts at 0. Access any element instantly with <code>arr[i]</code>.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s3">🔢</div>
+        <div class="summary-text">
+          <strong>1D vs 2D Arrays</strong>
+          1D arrays store data in a linear sequence. 2D arrays (matrices) use rows and columns — declared as <code>int arr[2][3]</code> and accessed with <code>arr[i][j]</code>.
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon s4">📤</div>
+        <div class="summary-text">
+          <strong>Arrays with Functions</strong>
+          Passing an array to a function sends only its base address — so all changes inside the function affect the original array directly (call by reference by default).
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip" style="margin-top:28px">
+      <span class="callout-icon">🚀</span>
+      <p><strong>Up next in this module:</strong> You've mastered Control Flow and Pointers — now continue to <strong>Arrays</strong>, where you'll learn to store and manipulate entire collections of values using a single variable. Arrays and pointers are deeply connected in C, so everything you learned about memory addresses applies directly.</p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(8)">← Mini Quiz</button>
+      <button class="nav-btn next" onclick="goTo(10)">Next: Arrays →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 10: ARRAYS — INTRODUCTION
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-10">
+    <div class="step-badge s4">→ Step 4 · New Module · Arrays in C</div>
+    <div class="section-label">Arrays in C — Introduction</div>
+    <h2>What is an Array?</h2>
+
+    <p>Imagine you need to store the marks of 50 students. Without arrays, you would have to declare 50 separate variables: <code>marks1</code>, <code>marks2</code>, <code>marks3</code>... all the way to <code>marks50</code>. That's not just tedious — it makes your code nearly impossible to manage, loop over, or pass to a function. <strong>Arrays</strong> solve this entirely.</p>
+
+    <p>An array is a <strong>collection of elements of the same data type</strong>, stored one after another in <em>contiguous (adjacent) memory locations</em>, all accessible through a single variable name and an index number. With one declaration, you can store, access, and process any number of values efficiently.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">Real-life Analogy</div>
+      <p>Think of an array like a row of numbered lockers in a school hallway 🔒🔒🔒. Every locker is the same size (same data type), they're all in a line (contiguous memory), each has a number on the door (the index), and they all belong to the same corridor (the array name). To access any locker, you just say: "open locker number 3." In C: <code>arr[3]</code>.</p>
+      <p>The key insight: you don't need a different name for each locker — you use the <em>same corridor name</em> with a <em>different number</em>. That's exactly how array indexing works.</p>
+    </div>
+
+    <h3><span class="h3-num">1</span> Why Arrays Exist — The Problem They Solve</h3>
+
+    <p>Without arrays, processing a group of related values requires repetitive, unmaintainable code. Consider adding up 5 numbers:</p>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Without arrays — painful and unscalable</span></div>
+      <pre><span class="cm">// ❌ Without arrays — imagine doing this for 100 students!</span>
+<span class="kw">int</span> m1=85, m2=90, m3=78, m4=92, m5=88;
+<span class="kw">int</span> total = m1 + m2 + m3 + m4 + m5;
+<span class="cm">// If you need to sort, search, or print them — you'd write 5x the code again</span>
+
+<span class="cm">// ✅ With arrays — clean, scalable, loop-friendly</span>
+<span class="kw">int</span> marks[<span class="nm">5</span>] = {<span class="nm">85</span>, <span class="nm">90</span>, <span class="nm">78</span>, <span class="nm">92</span>, <span class="nm">88</span>};
+<span class="kw">int</span> total = <span class="nm">0</span>;
+<span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">0</span>; i <span class="op">&lt;</span> <span class="nm">5</span>; i++) total <span class="op">+=</span> marks[i];
+<span class="cm">// Change 5 to 100 — works instantly. No other code changes needed.</span></pre>
+    </div>
+
+    <h3><span class="h3-num">2</span> How Arrays Live in Memory</h3>
+
+    <p>When you declare <code>int arr[5]</code>, the compiler allocates a <strong>single block of contiguous memory</strong> large enough to hold 5 integers. On most systems, each <code>int</code> is 4 bytes, so the entire array occupies 20 bytes of RAM — all in a row, with no gaps.</p>
+
+    <p>The array name (<code>arr</code>) acts as a pointer to the first element's address. Each subsequent element sits exactly 4 bytes after the previous one. This layout is what makes array access so fast: to reach element <code>arr[i]</code>, the CPU simply calculates <code>base_address + (i × 4)</code> — a single arithmetic operation.</p>
+
+    <div class="memory-diagram">
+      <div class="mem-title">Memory Layout — int arr[5] = {10, 20, 30, 40, 50}</div>
+      <div class="mem-row">
+        <div class="mem-cell active"><span class="mem-val">10</span><span class="mem-addr">0x1000</span><span class="mem-name">arr[0]</span></div>
+        <div class="mem-cell active"><span class="mem-val">20</span><span class="mem-addr">0x1004</span><span class="mem-name">arr[1]</span></div>
+        <div class="mem-cell active"><span class="mem-val">30</span><span class="mem-addr">0x1008</span><span class="mem-name">arr[2]</span></div>
+        <div class="mem-cell active"><span class="mem-val">40</span><span class="mem-addr">0x100C</span><span class="mem-name">arr[3]</span></div>
+        <div class="mem-cell active"><span class="mem-val">50</span><span class="mem-addr">0x1010</span><span class="mem-name">arr[4]</span></div>
+      </div>
+      <div style="color:rgba(247,244,238,0.5);font-size:13px;text-align:center;margin-top:14px;line-height:1.9;font-family:'DM Mono',monospace">
+        arr points to → 0x1000 (base address of first element)<br>
+        Each element is 4 bytes apart (size of int)<br>
+        arr[i] address = 0x1000 + (i × 4) — direct &amp; instant access
+      </div>
+      <div class="mem-legend">
+        <div class="mem-legend-item"><div class="mem-legend-dot" style="background:rgba(200,112,58,0.5);border:1.5px solid var(--accent)"></div><span>All 5 elements are adjacent in memory — no gaps between them</span></div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">🔑</span>
+      <p><strong>Key properties of every array in C:</strong><br>
+      &nbsp; ① All elements must be the <strong>same data type</strong> (<code>int</code>, <code>float</code>, <code>char</code>, etc.)<br>
+      &nbsp; ② Elements are stored in <strong>contiguous memory</strong> — no gaps<br>
+      &nbsp; ③ The <strong>index starts at 0</strong> — first element is <code>arr[0]</code>, not <code>arr[1]</code><br>
+      &nbsp; ④ Size must be known at <strong>declaration time</strong> (for static arrays)<br>
+      &nbsp; ⑤ The array name itself holds the <strong>base address</strong> (acts like a pointer)</p>
+    </div>
+
+    <h3><span class="h3-num">3</span> The Golden Rule: Indexing Starts at Zero</h3>
+
+    <p>This is the single most important thing to internalize about arrays. If you declare <code>int arr[5]</code>, the valid indices are <strong>0, 1, 2, 3, 4</strong> — not 1 through 5. The last valid index is always <code>size - 1</code>. Accessing <code>arr[5]</code> would go beyond the array's memory — this is called an <em>out-of-bounds access</em> and causes undefined behavior (your program may crash or produce garbage values).</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>✅ Valid Indices for arr[5]</h4>
+        <p><code>arr[0]</code> → 1st element (10)<br>
+        <code>arr[1]</code> → 2nd element (20)<br>
+        <code>arr[2]</code> → 3rd element (30)<br>
+        <code>arr[3]</code> → 4th element (40)<br>
+        <code>arr[4]</code> → 5th element (50) ← last valid!</p>
+      </div>
+      <div class="card">
+        <h4>🚨 Common Out-of-Bounds Mistakes</h4>
+        <p><code>arr[5]</code> → ❌ index 5 doesn't exist for size-5 array<br>
+        <code>arr[-1]</code> → ❌ negative index is invalid<br>
+        Loop <code>i &lt;= 5</code> → ❌ should be <code>i &lt; 5</code><br>
+        C doesn't check bounds — errors are silent and dangerous.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>C does NOT protect you from out-of-bounds access.</strong> Unlike Java or Python, C will not throw an error if you access <code>arr[10]</code> on a size-5 array. It will just read (or write) whatever memory happens to be there — which could corrupt other variables or crash your program. Always use <code>i &lt; size</code> (not <code>i &lt;= size</code>) in your loop conditions.</p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(9)">← Summary</button>
+      <button class="nav-btn next" onclick="goTo(11)">Next: Arrays Deep Dive →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 11: ARRAYS — DEEP DIVE
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-11">
+    <div class="step-badge s4">→ Step 4 · Arrays · Declaration to 2D</div>
+    <div class="section-label">Arrays in C — Concepts</div>
+    <h2>Arrays: Declaration, Access, 2D &amp; Functions</h2>
+
+    <p>Now that you understand what arrays are and how they live in memory, let's master every practical skill you need: declaring them, initializing them, reading user input into them, working with two-dimensional arrays, and passing them to functions.</p>
+
+    <hr class="concept-divider">
+
+    <!-- DECLARATION & INITIALIZATION -->
+    <h3><span class="h3-num">1</span> Declaration and Initialization</h3>
+
+    <p>Declaring an array means telling the compiler: <em>"reserve a block of memory for N elements of this type, and give the whole block this name."</em> You can declare an array empty and fill it later, or initialize it with values right at declaration. Both are valid — the choice depends on whether you know the values at compile time.</p>
+
+    <div class="syntax-box">
+      <div class="syntax-label">Syntax — Declaration Forms</div>
+      <pre>// Form 1: Declare with size only — elements are uninitialized (garbage values)
+datatype arrayName[size];
+int scores[5];           // 5 ints, values undefined
+
+// Form 2: Declare and initialize — values set at compile time
+datatype arrayName[size] = {val1, val2, ...};
+int scores[5] = {10, 20, 30, 40, 50};
+
+// Form 3: Size inferred — compiler counts the values automatically
+int scores[] = {10, 20, 30, 40, 50};  // size = 5, determined by compiler
+
+// Form 4: Partial initialization — remaining elements become 0
+int scores[5] = {10, 20};  // scores = {10, 20, 0, 0, 0}</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Array declaration and full initialization</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">// Declare an array of 5 integers and initialize all values at once</span>
+    <span class="kw">int</span> arr[<span class="nm">5</span>] = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">40</span>, <span class="nm">50</span>};
+    <span class="cm">//      ↑ type  ↑ name  ↑ size   ↑ initial values</span>
+
+    <span class="cm">// Use a for loop to print all elements — this is the standard pattern</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">0</span>; i <span class="op">&lt;</span> <span class="nm">5</span>; i<span class="op">++</span>) {
+        <span class="hl"><span class="fn">printf</span>(<span class="st">"%d "</span>, arr[i]);</span>  <span class="cm">// arr[i] accesses element at index i</span>
+    }
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>10 20 30 40 50 </code></div>
+    <div class="output-explain">
+      <strong>How the loop works:</strong> <code>i</code> starts at 0 and goes up to 4 (<code>i &lt; 5</code>). Each iteration, <code>arr[i]</code> accesses the element at that index — first <code>arr[0]</code>=10, then <code>arr[1]</code>=20, and so on until <code>arr[4]</code>=50. This is the canonical pattern for processing every element in an array.
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- ACCESSING ELEMENTS -->
+    <h3><span class="h3-num">2</span> Accessing and Modifying Array Elements</h3>
+
+    <p>Every element in an array is accessed using <strong>bracket notation</strong>: <code>arrayName[index]</code>. This can be used to both <em>read</em> a value (in an expression) and <em>write</em> a value (on the left side of an assignment). The index can be a literal number, a variable, or any integer expression.</p>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Accessing and modifying individual elements</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> arr[<span class="nm">3</span>] = {<span class="nm">5</span>, <span class="nm">10</span>, <span class="nm">15</span>};
+
+    <span class="cm">// READING — access individual elements by index</span>
+    <span class="fn">printf</span>(<span class="st">"First element:  %d\n"</span>, <span class="hl">arr[<span class="nm">0</span>]</span>);  <span class="cm">// index 0 → value 5</span>
+    <span class="fn">printf</span>(<span class="st">"Second element: %d\n"</span>, <span class="hl">arr[<span class="nm">1</span>]</span>);  <span class="cm">// index 1 → value 10</span>
+    <span class="fn">printf</span>(<span class="st">"Third element:  %d\n"</span>, <span class="hl">arr[<span class="nm">2</span>]</span>);  <span class="cm">// index 2 → value 15</span>
+
+    <span class="cm">// WRITING — modify an element after declaration</span>
+    arr[<span class="nm">1</span>] = <span class="nm">99</span>;                               <span class="cm">// overwrite index 1 with 99</span>
+    <span class="fn">printf</span>(<span class="st">"After change:   %d\n"</span>, arr[<span class="nm">1</span>]);  <span class="cm">// now prints 99</span>
+
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>First element:  5<br>Second element: 10<br>Third element:  15<br>After change:   99</code></div>
+    <div class="output-explain">
+      <strong>Key point:</strong> <code>arr[1] = 99</code> directly overwrites the value at index 1 in memory. After this assignment, index 1 holds 99 — the original value (10) is gone. Reading and writing work symmetrically with the same <code>arr[i]</code> syntax.
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- INPUT / OUTPUT -->
+    <h3><span class="h3-num">3</span> Input and Output Using Arrays</h3>
+
+    <p>One of the most common real-world patterns is reading values from the user into an array, processing them, and then displaying the results. The loop + array combination makes this elegant: one <code>scanf</code> inside a loop handles any number of inputs, and one <code>printf</code> loop displays them all.</p>
+
+    <p>Notice the critical use of <code>&amp;arr[i]</code> in <code>scanf</code> — since <code>scanf</code> needs to write into memory, you must pass the <em>address</em> of each element, not its value.</p>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Reading user input into an array and printing it</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> arr[<span class="nm">5</span>];     <span class="cm">// declare array — elements are uninitialized for now</span>
+
+    <span class="fn">printf</span>(<span class="st">"Enter 5 numbers:\n"</span>);
+
+    <span class="cm">// INPUT LOOP — read one value per iteration into arr[i]</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">0</span>; i <span class="op">&lt;</span> <span class="nm">5</span>; i<span class="op">++</span>) {
+        <span class="hl"><span class="fn">scanf</span>(<span class="st">"%d"</span>, <span class="op">&amp;</span>arr[i]);</span>  <span class="cm">// &amp;arr[i] = address of element at index i</span>
+    }                          <span class="cm">// scanf WRITES into that address — needs &amp;</span>
+
+    <span class="fn">printf</span>(<span class="st">"You entered: "</span>);
+
+    <span class="cm">// OUTPUT LOOP — print one value per iteration</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">0</span>; i <span class="op">&lt;</span> <span class="nm">5</span>; i<span class="op">++</span>) {
+        <span class="hl"><span class="fn">printf</span>(<span class="st">"%d "</span>, arr[i]);</span>  <span class="cm">// arr[i] = value at index i (no &amp; needed for reading)</span>
+    }
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Sample Output (if user enters 3 7 2 9 1)</div><code>Enter 5 numbers:<br>3 7 2 9 1<br>You entered: 3 7 2 9 1 </code></div>
+
+    <div class="how-it-works">
+      <div class="how-label">Why &amp;arr[i] in scanf but just arr[i] in printf?</div>
+      <ol class="steps-list">
+        <li><strong>printf reads the value</strong> — it only needs to know <em>what</em> is at that index to print it. <code>arr[i]</code> gives the value directly.</li>
+        <li><strong>scanf writes a value</strong> — it needs to know <em>where</em> in memory to store the number you type. So you pass the address: <code>&amp;arr[i]</code>.</li>
+        <li>This is the same principle as pointers: to modify something, you need its address. <code>&amp;arr[i]</code> is the address of the element at index i.</li>
+        <li>Forgetting <code>&amp;</code> in scanf is one of the most common beginner bugs — the program compiles but writes to a random memory location!</li>
+      </ol>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- 1D vs 2D -->
+    <h3><span class="h3-num">4</span> One-Dimensional vs Two-Dimensional Arrays</h3>
+
+    <p>A <strong>one-dimensional (1D) array</strong> stores data in a single linear sequence — like a single row. It's the simplest and most common form. A <strong>two-dimensional (2D) array</strong> adds a second dimension, organizing data into rows and columns — like a table, grid, or mathematical matrix. Think of a 2D array as an array of arrays.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>📏 1D Array — Linear</h4>
+        <p>A straight sequence: <code>arr[5]</code> has indices 0–4. Perfect for a list of student scores, temperatures, or prices. Accessed with one index: <code>arr[i]</code>.</p>
+      </div>
+      <div class="card">
+        <h4>📐 2D Array — Grid / Matrix</h4>
+        <p>A table with rows and columns: <code>arr[2][3]</code> means 2 rows × 3 columns = 6 elements. Perfect for matrices, game boards, seating charts. Accessed with two indices: <code>arr[i][j]</code> where i=row, j=column.</p>
+      </div>
+    </div>
+
+    <div class="memory-diagram">
+      <div class="mem-title">2D Array — int arr[2][3] = {{1,2,3},{4,5,6}} — how it maps to memory</div>
+      <div style="color:rgba(247,244,238,0.5);font-size:13px;text-align:center;margin-bottom:16px">Visualized as a grid (rows × columns):</div>
+      <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+        <div style="display:flex;gap:0;align-items:center">
+          <div style="color:rgba(247,244,238,0.4);font-size:12px;width:60px;text-align:right;padding-right:12px;font-family:'DM Mono',monospace">Row 0:</div>
+          <div class="mem-cell active" style="border-radius:8px 0 0 8px"><span class="mem-val">1</span><span class="mem-name">arr[0][0]</span></div>
+          <div class="mem-cell active"><span class="mem-val">2</span><span class="mem-name">arr[0][1]</span></div>
+          <div class="mem-cell active" style="border-radius:0 8px 8px 0"><span class="mem-val">3</span><span class="mem-name">arr[0][2]</span></div>
+        </div>
+        <div style="display:flex;gap:0;align-items:center">
+          <div style="color:rgba(247,244,238,0.4);font-size:12px;width:60px;text-align:right;padding-right:12px;font-family:'DM Mono',monospace">Row 1:</div>
+          <div class="mem-cell ptr" style="border-radius:8px 0 0 8px"><span class="mem-val">4</span><span class="mem-name">arr[1][0]</span></div>
+          <div class="mem-cell ptr"><span class="mem-val">5</span><span class="mem-name">arr[1][1]</span></div>
+          <div class="mem-cell ptr" style="border-radius:0 8px 8px 0"><span class="mem-val">6</span><span class="mem-name">arr[1][2]</span></div>
+        </div>
+      </div>
+      <div style="color:rgba(247,244,238,0.45);font-size:13px;text-align:center;margin-top:14px;line-height:1.8">
+        First index [i] = row number &nbsp;|&nbsp; Second index [j] = column number<br>
+        In memory: stored row by row → 1, 2, 3, 4, 5, 6 (all contiguous)
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Two-dimensional array with nested loops</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="cm">// 2D array: 2 rows, 3 columns — initialized with row data</span>
+    <span class="kw">int</span> arr[<span class="nm">2</span>][<span class="nm">3</span>] = {{<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>},   <span class="cm">// Row 0: arr[0][0]=1, arr[0][1]=2, arr[0][2]=3</span>
+                      {<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>}};  <span class="cm">// Row 1: arr[1][0]=4, arr[1][1]=5, arr[1][2]=6</span>
+
+    <span class="cm">// Outer loop: rows (i goes 0 to 1)</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">0</span>; i <span class="op">&lt;</span> <span class="nm">2</span>; i<span class="op">++</span>) {
+
+        <span class="cm">// Inner loop: columns (j goes 0 to 2) — runs fully for each row</span>
+        <span class="kw">for</span>(<span class="kw">int</span> j = <span class="nm">0</span>; j <span class="op">&lt;</span> <span class="nm">3</span>; j<span class="op">++</span>) {
+            <span class="hl"><span class="fn">printf</span>(<span class="st">"%d "</span>, arr[i][j]);</span>  <span class="cm">// i=row, j=column</span>
+        }
+        <span class="fn">printf</span>(<span class="st">"\n"</span>);  <span class="cm">// new line after each complete row</span>
+    }
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>1 2 3 <br>4 5 6 </code></div>
+    <div class="output-explain">
+      <strong>Reading the output:</strong> The outer loop runs twice (rows 0 and 1). For each row, the inner loop runs three times printing all columns. After each row, <code>printf("\n")</code> moves to the next line. The result is a 2-row × 3-column matrix printed exactly as it was initialized.
+    </div>
+
+    <div class="trace-table-wrapper">
+      <div class="trace-table-label">2D loop trace — which arr[i][j] prints at each step</div>
+      <table class="trace">
+        <tr><th>Outer i (row)</th><th>Inner j (col)</th><th>arr[i][j]</th><th>Printed</th></tr>
+        <tr><td>0</td><td>0</td><td>arr[0][0]</td><td>1</td></tr>
+        <tr><td>0</td><td>1</td><td>arr[0][1]</td><td>2</td></tr>
+        <tr><td>0</td><td>2</td><td>arr[0][2]</td><td>3 → then \n</td></tr>
+        <tr><td>1</td><td>0</td><td>arr[1][0]</td><td>4</td></tr>
+        <tr><td>1</td><td>1</td><td>arr[1][1]</td><td>5</td></tr>
+        <tr class="stop"><td>1</td><td>2</td><td>arr[1][2]</td><td>6 → then \n → done</td></tr>
+      </table>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- ARRAYS AND FUNCTIONS -->
+    <h3><span class="h3-num">5</span> Passing Arrays to Functions</h3>
+
+    <p>When you pass an array to a function in C, something fundamentally different happens compared to passing a regular variable. Instead of copying the entire array (which could be huge), C automatically passes only the <strong>base address</strong> — a pointer to the first element. This means the function gets direct access to the original array in memory.</p>
+
+    <p>This has an important consequence: <strong>any changes made to the array inside the function directly modify the original array</strong>. There is no copy. Unlike regular variables (call by value), arrays in C are always effectively passed by reference.</p>
+
+    <div class="analogy-box">
+      <div class="analogy-label">Real-life Analogy</div>
+      <p>Passing an array to a function is like giving someone the <em>keys to your house</em> 🔑, not a blueprint of it. With the blueprint (a copy), they can draw on it all they want — your house is untouched. But with the actual keys, whatever they do inside directly affects your real home. Arrays passed to functions give the function the actual keys — the real memory address — so any changes are permanent.</p>
+    </div>
+
+    <div class="how-it-works">
+      <div class="how-label">What happens when you pass an array to a function</div>
+      <ol class="steps-list">
+        <li>You call <code>modify(arr, 3)</code> — the array name <code>arr</code> automatically decays to a pointer to its first element.</li>
+        <li>The function receives this pointer as <code>int arr[]</code> (which is equivalent to <code>int *arr</code>).</li>
+        <li>Inside the function, <code>arr[i]</code> accesses the same memory cells as the original array in <code>main()</code>.</li>
+        <li>Any assignment like <code>arr[i] = arr[i] * 2</code> writes directly to those memory cells.</li>
+        <li>When the function returns, the changes are visible in <code>main()</code> because the same memory was modified.</li>
+      </ol>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">C · Passing array to function — changes affect original</span></div>
+      <pre><span class="kw">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="cm">// Function receives array pointer (int arr[]) and its size (int n)</span>
+<span class="cm">// int arr[] is syntactic sugar for int *arr — it's a pointer, not a copy!</span>
+<span class="kw">void</span> <span class="fn">modify</span>(<span class="kw">int</span> arr[], <span class="kw">int</span> n) {
+    <span class="kw">for</span>(<span class="kw">int</span> i = <span class="nm">0</span>; i <span class="op">&lt;</span> n; i<span class="op">++</span>) {
+        <span class="hl">arr[i] = arr[i] <span class="op">*</span> <span class="nm">2</span>;</span>  <span class="cm">// doubles each element IN-PLACE — modifies original!</span>
+    }
+}
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> arr[<span class="nm">3</span>] = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>};
+
+    <span class="fn">printf</span>(<span class="st">"Before: "</span>);
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>; i<span class="op">&lt;</span><span class="nm">3</span>; i++) <span class="fn">printf</span>(<span class="st">"%d "</span>, arr[i]);
+
+    <span class="fn">modify</span>(arr, <span class="nm">3</span>);  <span class="cm">// pass array — only base address is sent (no copying!)</span>
+
+    <span class="fn">printf</span>(<span class="st">"\nAfter:  "</span>);
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>; i<span class="op">&lt;</span><span class="nm">3</span>; i++) <span class="fn">printf</span>(<span class="st">"%d "</span>, arr[i]);  <span class="cm">// values ARE changed!</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+    </div>
+    <div class="output-box"><div class="output-label">Output</div><code>Before: 1 2 3 <br>After:  2 4 6 </code></div>
+    <div class="output-explain">
+      <strong>Why the values changed in main():</strong> When <code>modify(arr, 3)</code> was called, C passed the address of <code>arr[0]</code> to the function. Inside <code>modify</code>, <code>arr[i] = arr[i] * 2</code> wrote new values directly into the original memory. There was no copy — the function worked on the same data. This is the automatic call-by-reference behavior of arrays in C.
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✅</span>
+      <p><strong>Why pass size separately?</strong> Arrays in C do not carry their own size information. Once passed to a function, the function only knows it received a pointer — it has no way to determine how many elements the array has. That's why we always pass the size as a second argument: <code>modify(arr, 3)</code>. Always pair an array with its size when passing to functions.</p>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- ADVANTAGES & IMPORTANT POINTS -->
+    <h3><span class="h3-num">6</span> Advantages of Arrays &amp; Key Rules</h3>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>✅ Easy Multi-Value Storage</h4>
+        <p>Store 1000 values under one variable name. No need for <code>x1</code>, <code>x2</code>... <code>x1000</code>. One declaration handles them all, and a loop processes them all.</p>
+      </div>
+      <div class="card">
+        <h4>✅ Efficient Memory Usage</h4>
+        <p>All elements live in one contiguous block. No overhead per element. The compiler knows the total size upfront: <code>sizeof(int) × size</code> bytes.</p>
+      </div>
+      <div class="card">
+        <h4>✅ Instant Index Access</h4>
+        <p>Any element is reachable in O(1) constant time — no searching needed. The address formula <code>base + i × sizeof(type)</code> directly computes the location.</p>
+      </div>
+      <div class="card">
+        <h4>✅ Loop &amp; Algorithm Friendly</h4>
+        <p>The indexed structure pairs perfectly with loops. All classic algorithms — sorting (bubble, selection), searching (linear, binary), reversing — work naturally over arrays.</p>
+      </div>
+    </div>
+
+    <div class="how-it-works">
+      <div class="how-label">Important rules — always keep these in mind</div>
+      <ol class="steps-list">
+        <li><strong>Index starts at 0</strong> — first element is <code>arr[0]</code>, last is <code>arr[size-1]</code>. Never use <code>arr[size]</code>.</li>
+        <li><strong>All elements must be same type</strong> — you cannot mix <code>int</code> and <code>float</code> in the same array. Each slot holds the declared type.</li>
+        <li><strong>Size must be defined at declaration</strong> — static arrays require a known, fixed size. To use dynamic sizes, use <code>malloc()</code>.</li>
+        <li><strong>Stored in contiguous memory</strong> — all elements are adjacent. This enables efficient CPU caching and pointer arithmetic.</li>
+        <li><strong>No bounds checking</strong> — C will not stop you from accessing out-of-bounds indices. Always validate index ranges manually.</li>
+      </ol>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(10)">← Arrays Intro</button>
+      <button class="nav-btn next" onclick="goTo(12)">Next: Arrays Practice →</button>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 12: ARRAYS — PRACTICE + QUIZ
+  ══════════════════════════════════════════ -->
+  <div class="section" id="sec-12">
+    <div class="step-badge s4">→ Step 4 · Arrays · Practice &amp; Quiz</div>
+    <div class="section-label">Arrays in C — Practice &amp; Knowledge Check</div>
+    <h2>Arrays: Practice Problems &amp; Mini Quiz</h2>
+
+    <p>Put your Arrays knowledge to the test. Try each problem on your own before looking at the hint. For the quiz, select your answers and then check them all at once.</p>
+
+    <!-- PRACTICE PROBLEMS -->
+    <h3><span class="h3-num" style="background:var(--accent2)">✎</span> Practice Problems</h3>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">P1</div><div class="practice-title">Declare, Initialize, and Print an Array</div></div>
+        <div class="practice-difficulty diff-easy">Easy</div>
+      </div>
+      <div class="practice-body">
+        <p>Declare an integer array of size 5 with values <code>{3, 6, 9, 12, 15}</code>. Using a <code>for</code> loop, print all elements separated by spaces. Then print the sum of all elements on a new line.</p>
+        <button class="hint-btn" onclick="toggleHint('ah1')">💡 Show Hint</button>
+        <div class="hint-content" id="ah1">Declare: <code>int arr[5] = {3, 6, 9, 12, 15};</code>. Use one loop for printing: <code>printf("%d ", arr[i])</code>. For the sum, declare <code>int sum = 0</code> before the loop, then add <code>sum += arr[i]</code> inside it. After the loop, <code>printf("\nSum: %d", sum)</code>. You can do printing and summing in the same loop!</div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">P2</div><div class="practice-title">Find the Largest Element in an Array</div></div>
+        <div class="practice-difficulty diff-easy">Easy</div>
+      </div>
+      <div class="practice-body">
+        <p>Given an array <code>int arr[5] = {14, 3, 27, 8, 19}</code>, write a program to find and print the <strong>largest element</strong>. Do not use any sorting function — solve it manually with a loop.</p>
+        <button class="hint-btn" onclick="toggleHint('ah2')">💡 Show Hint</button>
+        <div class="hint-content" id="ah2">Start with <code>int max = arr[0]</code> — assume the first element is the largest. Then loop from index 1 to 4. Inside the loop: <code>if(arr[i] &gt; max) max = arr[i];</code>. This updates max whenever a bigger element is found. After the loop, <code>max</code> holds the largest value.</div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">P3</div><div class="practice-title">Reverse an Array</div></div>
+        <div class="practice-difficulty diff-medium">Medium</div>
+      </div>
+      <div class="practice-body">
+        <p>Declare <code>int arr[5] = {1, 2, 3, 4, 5}</code>. Reverse it <em>in-place</em> (without using a second array) and print the reversed result: <code>5 4 3 2 1</code>. Think about which pairs of elements need to be swapped.</p>
+        <button class="hint-btn" onclick="toggleHint('ah3')">💡 Show Hint</button>
+        <div class="hint-content" id="ah3">Use two index variables: <code>int left = 0, right = 4</code>. Swap <code>arr[left]</code> and <code>arr[right]</code> using a temp variable. Then move: <code>left++; right--;</code>. Repeat while <code>left &lt; right</code>. You only need to swap half the elements — when left and right meet in the middle, you're done.</div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">P4</div><div class="practice-title">Print a 3×3 Identity Matrix Using a 2D Array</div></div>
+        <div class="practice-difficulty diff-medium">Medium</div>
+      </div>
+      <div class="practice-body">
+        <p>Create a 3×3 2D array that represents an <strong>identity matrix</strong> (1s on the diagonal, 0s everywhere else) and print it. Expected output: row 1: <code>1 0 0</code>, row 2: <code>0 1 0</code>, row 3: <code>0 0 1</code>.</p>
+        <button class="hint-btn" onclick="toggleHint('ah4')">💡 Show Hint</button>
+        <div class="hint-content" id="ah4">Declare <code>int mat[3][3]</code>. Use nested loops with outer <code>i</code> (rows) and inner <code>j</code> (columns). Inside: <code>if(i == j) mat[i][j] = 1; else mat[i][j] = 0;</code> — this is the identity matrix condition (value is 1 only where row index equals column index). Then use another nested loop to print it row by row.</div>
+      </div>
+    </div>
+
+    <div class="practice-card">
+      <div class="practice-header">
+        <div style="display:flex;align-items:center"><div class="practice-num">P5</div><div class="practice-title">Function to Calculate Array Average</div></div>
+        <div class="practice-difficulty diff-medium">Medium</div>
+      </div>
+      <div class="practice-body">
+        <p>Write a function <code>float average(int arr[], int n)</code> that takes an integer array and its size, computes the average, and returns it. Call it from main with <code>{10, 20, 30, 40, 50}</code> and print the result.</p>
+        <button class="hint-btn" onclick="toggleHint('ah5')">💡 Show Hint</button>
+        <div class="hint-content" id="ah5">Inside the function: declare <code>int sum = 0</code>, loop through all elements adding to sum, then <code>return (float)sum / n;</code> — the cast to <code>float</code> is important, otherwise integer division would discard the decimal part. In main: <code>float avg = average(arr, 5);</code> then <code>printf("%.2f", avg);</code> to print with 2 decimal places.</div>
+      </div>
+    </div>
+
+    <hr class="concept-divider">
+
+    <!-- MINI QUIZ -->
+    <h3><span class="h3-num" style="background:var(--accent3)">?</span> Mini Quiz — Arrays</h3>
+    <p>Select your answer for each question, then click <strong>Check Arrays Quiz</strong>.</p>
+
+    <div id="arrQuizForm">
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q1.</span> For an array declared as <code>int arr[6]</code>, what is the index of the last valid element?</div>
+        <div class="quiz-options" id="aq1">
+          <div class="quiz-option" onclick="selectArr(this,'aq1','a')"><div class="opt-circle">A</div> 6</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq1','b')"><div class="opt-circle">B</div> 5</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq1','c')"><div class="opt-circle">C</div> 1</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq1','d')"><div class="opt-circle">D</div> 0</div>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q2.</span> What is stored in an uninitialized array element in C?</div>
+        <div class="quiz-options" id="aq2">
+          <div class="quiz-option" onclick="selectArr(this,'aq2','a')"><div class="opt-circle">A</div> Zero (0)</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq2','b')"><div class="opt-circle">B</div> Garbage (undefined) value</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq2','c')"><div class="opt-circle">C</div> Null</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq2','d')"><div class="opt-circle">D</div> The index number</div>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q3.</span> When an array is passed to a function in C, what is actually sent?</div>
+        <div class="quiz-options" id="aq3">
+          <div class="quiz-option" onclick="selectArr(this,'aq3','a')"><div class="opt-circle">A</div> A copy of all elements</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq3','b')"><div class="opt-circle">B</div> The size of the array</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq3','c')"><div class="opt-circle">C</div> The base address (pointer to first element)</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq3','d')"><div class="opt-circle">D</div> The last element's value</div>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q4.</span> How do you correctly access the element at row 1, column 2 of a 2D array named <code>mat</code>?</div>
+        <div class="quiz-options" id="aq4">
+          <div class="quiz-option" onclick="selectArr(this,'aq4','a')"><div class="opt-circle">A</div> mat[2][1]</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq4','b')"><div class="opt-circle">B</div> mat[1][2]</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq4','c')"><div class="opt-circle">C</div> mat(1,2)</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq4','d')"><div class="opt-circle">D</div> mat[1,2]</div>
+        </div>
+      </div>
+
+      <div class="quiz-question">
+        <div class="quiz-q"><span>Q5.</span> What is the correct way to read user input into <code>arr[i]</code> using <code>scanf</code>?</div>
+        <div class="quiz-options" id="aq5">
+          <div class="quiz-option" onclick="selectArr(this,'aq5','a')"><div class="opt-circle">A</div> scanf("%d", arr[i]);</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq5','b')"><div class="opt-circle">B</div> scanf("%d", &amp;arr[i]);</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq5','c')"><div class="opt-circle">C</div> scanf("%d", *arr[i]);</div>
+          <div class="quiz-option" onclick="selectArr(this,'aq5','d')"><div class="opt-circle">D</div> scanf(arr[i]);</div>
+        </div>
+      </div>
+
+      <button class="quiz-submit-btn" onclick="checkArrQuiz()">✔ Check Arrays Quiz</button>
+    </div>
+
+    <div class="quiz-result" id="arrQuizResult">
+      <h4 id="arrQuizScore"></h4>
+      <p id="arrQuizFeedback"></p>
+    </div>
+
+    <div class="section-nav">
+      <button class="nav-btn prev" onclick="goTo(11)">← Arrays Deep Dive</button>
+      <button class="nav-btn next" disabled>Module Complete ✓</button>
+    </div>
+  </div>
+
+  </main>
+</div>
+
+<script>
+  const TOTAL = 13;
+  let current = 0;
+  const correct = { q1:'b', q2:'c', q3:'c', q4:'b', q5:'c' };
+  const selected = {};
+  const visited = new Set([0]);
+
+  function goTo(n) {
+    document.getElementById('sec-' + current).classList.remove('visible');
+    current = n;
+    document.getElementById('sec-' + n).classList.add('visible');
+    visited.add(n);
+    updateNav();
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateNav() {
+    document.querySelectorAll('.nav-item').forEach((el, i) => {
+      el.classList.remove('active','done');
+      if (i === current) el.classList.add('active');
+      else if (visited.has(i)) el.classList.add('done');
+    });
+  }
+
+  function updateProgress() {
+    const pct = Math.round((visited.size / TOTAL) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = pct + '%';
+  }
+
+  function toggleHint(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('show');
+    el.previousElementSibling.textContent = el.classList.contains('show') ? '🙈 Hide Hint' : '💡 Show Hint';
+  }
+
+  function selectOpt(el, qId, opt) {
+    document.querySelectorAll('#' + qId + ' .quiz-option').forEach(o => o.style.borderColor = '');
+    el.style.borderColor = 'var(--accent)';
+    selected[qId] = opt;
+  }
+
+  function checkQuiz() {
+    let score = 0;
+    ['q1','q2','q3','q4','q5'].forEach(qId => {
+      const opts = document.querySelectorAll('#' + qId + ' .quiz-option');
+      const letters = ['a','b','c','d'];
+      opts.forEach((opt, i) => {
+        opt.classList.remove('correct','wrong');
+        opt.style.borderColor = '';
+        if (letters[i] === correct[qId]) opt.classList.add('correct');
+        else if (selected[qId] && letters[i] === selected[qId] && selected[qId] !== correct[qId]) opt.classList.add('wrong');
+      });
+      if (selected[qId] === correct[qId]) score++;
+    });
+    const r = document.getElementById('quizResult');
+    r.classList.add('show');
+    document.getElementById('quizScore').textContent =
+      score === 5 ? '🎉 Perfect Score! 5 / 5' :
+      score >= 3  ? `✅ Good Work! ${score} / 5` : `📖 Keep Practicing — ${score} / 5`;
+    document.getElementById('quizFeedback').textContent =
+      score === 5 ? 'Outstanding — you\'ve fully mastered Control Flow and Pointers in C!' :
+      score >= 3  ? 'Solid understanding! Review the sections for any questions you missed.' :
+                    'No worries — revisit the relevant sections and try again. You\'ve got this!';
+    r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  updateProgress();
+  updateProgress();
+
+  // ── ARRAYS QUIZ ──
+  const arrCorrect = { aq1:'b', aq2:'b', aq3:'c', aq4:'b', aq5:'b' };
+  const arrSelected = {};
+
+  function selectArr(el, qId, opt) {
+    document.querySelectorAll('#' + qId + ' .quiz-option').forEach(o => o.style.borderColor = '');
+    el.style.borderColor = 'var(--accent)';
+    arrSelected[qId] = opt;
+  }
+
+  function checkArrQuiz() {
+    let score = 0;
+    ['aq1','aq2','aq3','aq4','aq5'].forEach(qId => {
+      const opts = document.querySelectorAll('#' + qId + ' .quiz-option');
+      const letters = ['a','b','c','d'];
+      opts.forEach((opt, i) => {
+        opt.classList.remove('correct','wrong');
+        opt.style.borderColor = '';
+        if (letters[i] === arrCorrect[qId]) opt.classList.add('correct');
+        else if (arrSelected[qId] && letters[i] === arrSelected[qId] && arrSelected[qId] !== arrCorrect[qId]) opt.classList.add('wrong');
+      });
+      if (arrSelected[qId] === arrCorrect[qId]) score++;
+    });
+    const r = document.getElementById('arrQuizResult');
+    r.classList.add('show');
+    document.getElementById('arrQuizScore').textContent =
+      score === 5 ? '🎉 Perfect Score! 5 / 5' :
+      score >= 3  ? `✅ Good Work! ${score} / 5` : `📖 Keep Practicing — ${score} / 5`;
+    document.getElementById('arrQuizFeedback').textContent =
+      score === 5 ? 'Excellent — you\'ve fully mastered Arrays in C!' :
+      score >= 3  ? 'Solid understanding! Review the Arrays sections for any questions you missed.' :
+                    'No worries — revisit the Arrays sections and try again. You\'ve got this!';
+    r.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>
