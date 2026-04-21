@@ -160,7 +160,7 @@ export default function Dashboard() {
       <section className="page-container pb-20">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="section-heading">CodeLife Hub</h2>
+            <h2 className="section-heading">Upcurve Hub</h2>
             <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">Your structured learning roadmap</p>
           </div>
           {user && (

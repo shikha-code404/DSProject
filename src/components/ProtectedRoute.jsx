@@ -2,15 +2,19 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 /**
- * Wraps a route and redirects to /login if the user is not authenticated.
- * Preserves the attempted path so we can redirect back after login.
+ * Wraps a route and redirects strictly based on Auth status.
  */
 export default function ProtectedRoute({ children }) {
-  const { user }   = useAuth()
-  const location   = useLocation()
+  const { user, isConfirmed } = useAuth()
+  const location = useLocation()
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  // If user is logged in but hasn't confirmed their email
+  if (!isConfirmed) {
+    return <Navigate to="/auth/confirm-pending" replace />
   }
 
   return children

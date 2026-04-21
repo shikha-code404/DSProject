@@ -349,7 +349,7 @@ export default function Prerequisite() {
                 { icon: Clock,       label: 'Est. Time',   value: '8–12 hours' },
                 { icon: BookOpen,    label: 'Topics',      value: `${topics.length} lessons` },
                 { icon: CheckCircle, label: 'Completed',   value: `${completed} / ${topics.length}` },
-                { icon: User,        label: 'Instructor',  value: 'CodeLife Team' },
+                { icon: User,        label: 'Instructor',  value: 'Upcurve Team' },
               ].map(({ icon: Icon, label, value }) => (
                 <li key={label} className="flex items-center gap-3 text-sm">
                   <Icon className="w-4 h-4 text-primary-500 shrink-0" />

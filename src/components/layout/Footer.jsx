@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Code2, Heart, ExternalLink, AtSign, Briefcase } from 'lucide-react'
+import { useTheme } from '../../contexts/ThemeContext'
+import UpcurveLogoLight from '../../assets/Upcurve_logo.png'
+import UpcurveLogoDark from '../../assets/Upcurve_logo_dark.png'
 
 export default function Footer() {
+  const { theme } = useTheme()
   return (
     <footer className="mt-auto border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900/80">
       <div className="page-container py-10">
@@ -9,12 +13,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link to="/" className="inline-flex items-center gap-2.5 mb-3">
-              <div className="p-1.5 rounded-xl bg-gradient-to-br from-primary-500 to-accent-cyan">
-                <Code2 className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-bold font-head text-lg text-slate-900 dark:text-white">
-                Code<span className="text-gradient-primary">Life</span>
-              </span>
+              <img src={theme === 'dark' ? UpcurveLogoDark : UpcurveLogoLight} alt="Upcurve Logo" className="h-8 w-auto rounded-lg shadow-md object-contain" />
             </Link>
             <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed">
               Your comprehensive DSA learning hub. Master algorithms and data structures from zero to advanced.
@@ -73,7 +72,7 @@ export default function Footer() {
 
         <div className="border-t border-slate-200 dark:border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-400 dark:text-slate-500">
-            © {new Date().getFullYear()} CodeLife. All rights reserved.
+            © {new Date().getFullYear()} Upcurve. Learn, Progress, Grow.
           </p>
           <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
             Built with <Heart className="w-3 h-3 text-red-400 fill-red-400" /> for learners worldwide

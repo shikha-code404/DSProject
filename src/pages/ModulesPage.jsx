@@ -216,7 +216,7 @@ export default function ModulesPage() {
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold
                              bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300
                              border border-violet-200 dark:border-violet-700 mb-4">
-              📚 CodeLife Learning Hub
+              📚 Upcurve Learning Hub
             </span>
           </motion.div>
 

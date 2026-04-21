@@ -10,6 +10,8 @@ import LandingPage      from './pages/LandingPage'
 import ModulesPage      from './pages/ModulesPage'
 import Login            from './pages/Login'
 import Signup           from './pages/Signup'
+import AuthCallback     from './pages/auth/AuthCallback'
+import ConfirmPending   from './pages/auth/ConfirmPending'
 import Prerequisite     from './pages/Prerequisite'
 import BeginnerPath     from './pages/BeginnerPath'
 import IntermediatePath from './pages/IntermediatePath'
@@ -29,6 +31,10 @@ export default function App() {
                 <Route path="/"       element={<LandingPage />} />
                 <Route path="/login"  element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                
+                {/* ── Auth Flow ── */}
+                <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/auth/confirm-pending" element={<ConfirmPending />} />
 
                 {/* ── Main Hub (accessible without login, but shows upsell) ── */}
                 <Route path="/home"   element={<ModulesPage />} />

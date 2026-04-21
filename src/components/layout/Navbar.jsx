@@ -6,6 +6,8 @@ import {
   LayoutDashboard, User, LogOut, ChevronDown,
 } from 'lucide-react'
 import { useTheme } from '../../contexts/ThemeContext'
+import UpcurveLogoLight from '../../assets/Upcurve_logo.png'
+import UpcurveLogoDark from '../../assets/Upcurve_logo_dark.png'
 import { useAuth }  from '../../contexts/AuthContext'
 import clsx from 'clsx'
 
@@ -48,20 +50,15 @@ export default function Navbar() {
           : 'bg-transparent border-b border-transparent',
       )}
     >
-      <div className="page-container flex items-center justify-between h-16">
+      <div className="page-container flex items-center justify-between h-20">
         {/* Logo */}
         <Link to="/home" className="flex items-center gap-2.5 group" id="navbar-logo">
-          <div className="p-1.5 rounded-xl bg-gradient-to-br from-primary-500 to-accent-cyan shadow-glow-primary group-hover:shadow-lg transition-shadow">
-            <Code2 className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-bold font-head text-lg text-slate-900 dark:text-white">
-            Code<span className="text-gradient-primary">Life</span>
-          </span>
+          <img src={theme === 'dark' ? UpcurveLogoDark : UpcurveLogoLight} alt="Upcurve Logo" className="h-10 w-auto rounded-lg shadow-md object-contain" />
         </Link>
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.map(({ to, label }) => (
+          {user && NAV_LINKS.map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -69,7 +66,7 @@ export default function Navbar() {
               id={`nav-${label.toLowerCase()}`}
               className={({ isActive }) =>
                 clsx(
-                  'btn-ghost text-sm transition-all duration-200',
+                  'btn-ghost text-base px-4 py-2 transition-all duration-200',
                   isActive && 'text-primary-500 bg-primary-50 dark:bg-primary-900/20',
                 )
               }
@@ -85,17 +82,17 @@ export default function Navbar() {
           <button
             id="theme-toggle"
             onClick={toggleTheme}
-            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200"
+            className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all duration-200"
             aria-label="Toggle theme"
           >
             <AnimatePresence mode="wait">
               {theme === 'dark' ? (
                 <motion.span key="sun"  initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                  <Sun  className="w-4.5 h-4.5" />
+                  <Sun  className="w-[22px] h-[22px]" />
                 </motion.span>
               ) : (
                 <motion.span key="moon" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                  <Moon className="w-4.5 h-4.5" />
+                  <Moon className="w-[22px] h-[22px]" />
                 </motion.span>
               )}
             </AnimatePresence>
@@ -107,12 +104,12 @@ export default function Navbar() {
               <button
                 id="user-menu-toggle"
                 onClick={() => setDropOpen(d => !d)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-navy-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-navy-700 transition-colors"
               >
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary-500 to-accent-cyan flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-accent-cyan flex items-center justify-center text-white text-sm font-bold">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{user.name.split(' ')[0]}</span>
+                <span className="text-base font-medium text-slate-700 dark:text-slate-200">{user.name.split(' ')[0]}</span>
                 <ChevronDown className={clsx('w-4 h-4 text-slate-400 transition-transform', dropOpen && 'rotate-180')} />
               </button>
 
@@ -138,9 +135,9 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
           ) : (
-            <div className="hidden md:flex items-center gap-2">
-              <Link to="/login"  id="nav-login"  className="btn-ghost text-sm">Sign In</Link>
-              <Link to="/signup" id="nav-signup" className="btn-primary text-sm">Get Started</Link>
+            <div className="hidden md:flex items-center gap-3">
+              <Link to="/login"  id="nav-login"  className="btn-ghost text-lg px-6 py-3">Sign In</Link>
+              <Link to="/signup" id="nav-signup" className="btn-primary text-lg px-7 py-3.5">Get Started</Link>
             </div>
           )}
 
@@ -165,7 +162,7 @@ export default function Navbar() {
             className="md:hidden border-t border-slate-200 dark:border-white/10 bg-white/95 dark:bg-navy-900/95 backdrop-blur-md"
           >
             <div className="page-container py-4 flex flex-col gap-1">
-              {NAV_LINKS.map(({ to, label }) => (
+              {user && NAV_LINKS.map(({ to, label }) => (
                 <NavLink
                   key={to}
                   to={to}
