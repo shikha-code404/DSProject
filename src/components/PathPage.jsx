@@ -7,52 +7,120 @@ import ProgressBar from '../components/ui/ProgressBar'
 import { DifficultyBadge } from '../components/ui/Badge'
 import clsx from 'clsx'
 
+/* ── Difficulty colour map ── */
+const DIFF_META = {
+  beginner:     { bar: 'bg-gradient-to-r from-emerald-400 to-green-500',  ring: 'ring-emerald-500/20', glow: 'hover:shadow-emerald-500/20' },
+  intermediate: { bar: 'bg-gradient-to-r from-amber-400 to-orange-500',   ring: 'ring-amber-500/20',   glow: 'hover:shadow-amber-500/20'   },
+  advanced:     { bar: 'bg-gradient-to-r from-red-400 to-rose-600',        ring: 'ring-red-500/20',     glow: 'hover:shadow-red-500/20'     },
+}
+function diffMeta(level) { return DIFF_META[level?.toLowerCase()] ?? DIFF_META.beginner }
+
+/* ── Card variants ── */
+const cardVariant = {
+  hidden: { opacity: 0, y: 28, scale: 0.96 },
+  show:   { opacity: 1, y: 0,  scale: 1,    transition: { duration: 0.4, ease: 'easeOut' } },
+}
+const container = {
+  hidden: {},
+  show:   { transition: { staggerChildren: 0.05 } },
+}
+
 function LessonCard({ lesson, index, onToggle }) {
+  const { bar, ring, glow } = diffMeta(lesson.difficulty)
+  const done   = lesson.completed
+  const locked = lesson.locked
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: -16 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.04 }}
+      variants={cardVariant}
       className={clsx(
-        'group flex items-center gap-4 p-4 rounded-xl border transition-all duration-200',
-        lesson.completed
-          ? 'bg-emerald-50/50 dark:bg-emerald-900/10 border-emerald-200/60 dark:border-emerald-800/30'
-          : 'bg-white dark:bg-navy-800 border-slate-200 dark:border-white/10 hover:border-primary-300 dark:hover:border-primary-700',
-        lesson.locked && 'opacity-60',
+        'group relative flex flex-col rounded-2xl overflow-hidden',
+        'border border-slate-200 dark:border-white/8',
+        'bg-white dark:bg-navy-800/80 backdrop-blur-sm',
+        `ring-1 ${ring}`,
+        'hover:shadow-xl hover:-translate-y-1',
+        glow,
+        'transition-all duration-300',
+        locked  && 'opacity-55 cursor-not-allowed',
+        done    && 'opacity-65',
       )}
     >
-      <button
-        onClick={() => !lesson.locked && onToggle(lesson.id)}
-        className={clsx('shrink-0 transition-transform', !lesson.locked && 'hover:scale-110')}
-        disabled={lesson.locked}
-        aria-label={lesson.completed ? 'Mark incomplete' : 'Mark complete'}
-      >
-        {lesson.locked
-          ? <Lock className="w-5 h-5 text-slate-400" />
-          : lesson.completed
-          ? <CheckCircle className="w-5 h-5 text-emerald-500" />
-          : <PlayCircle  className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-primary-500" />
-        }
-      </button>
+      {/* Coloured top stripe */}
+      <div className={clsx('h-1 w-full flex-shrink-0', bar)} />
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <span className="text-xs font-mono text-slate-400">{String(index + 1).padStart(2, '0')}</span>
-          <h3 className={clsx(
-            'font-semibold text-sm truncate',
-            lesson.completed ? 'line-through text-slate-400' : 'text-slate-800 dark:text-white',
-          )}>
-            {lesson.title}
-          </h3>
-        </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400">{lesson.description}</p>
+      {/* Lesson number badge (top-left) */}
+      <div className="absolute top-3 left-3 z-10">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full
+                         bg-slate-100 dark:bg-navy-700 text-slate-500 dark:text-slate-400
+                         text-xs font-bold font-mono border border-slate-200 dark:border-white/10">
+          {String(index + 1).padStart(2, '0')}
+        </span>
       </div>
 
-      <div className="hidden sm:flex items-center gap-3 shrink-0">
-        <DifficultyBadge level={lesson.difficulty} />
-        <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-          <Clock className="w-3 h-3" /> {lesson.duration}
-        </span>
+      {/* Status icon (top-right) */}
+      <div className="absolute top-3 right-3 z-10">
+        {locked
+          ? <Lock        className="w-4 h-4 text-slate-400" />
+          : done
+          ? <CheckCircle className="w-5 h-5 text-emerald-400 drop-shadow" />
+          : null
+        }
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-col flex-1 p-5 pt-10">
+        {/* Title */}
+        <h3 className={clsx(
+          'font-bold text-sm leading-snug mb-1.5 pr-4',
+          done
+            ? 'line-through text-slate-400 dark:text-slate-500'
+            : 'text-slate-800 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors',
+        )}>
+          {lesson.title}
+        </h3>
+
+        {/* Description */}
+        {lesson.description && (
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            {lesson.description}
+          </p>
+        )}
+
+        <div className="flex-1" />
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-2 mt-3 pt-3
+                        border-t border-slate-100 dark:border-white/6">
+          {/* Left: difficulty + time */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <DifficultyBadge level={lesson.difficulty} />
+            {lesson.duration && (
+              <span className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+                <Clock className="w-3 h-3" />
+                {lesson.duration}
+              </span>
+            )}
+          </div>
+
+          {/* Right: toggle button */}
+          <button
+            onClick={() => !locked && onToggle(lesson.id)}
+            disabled={locked}
+            aria-label={done ? 'Mark incomplete' : 'Mark complete'}
+            id={`toggle-lesson-${lesson.id}`}
+            className={clsx(
+              'shrink-0 transition-transform focus:outline-none',
+              !locked && 'hover:scale-110 active:scale-95',
+            )}
+          >
+            {locked
+              ? <Lock        className="w-5 h-5 text-slate-400" />
+              : done
+              ? <CheckCircle className="w-5 h-5 text-emerald-500" />
+              : <PlayCircle  className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-primary-500 transition-colors" />
+            }
+          </button>
+        </div>
       </div>
     </motion.div>
   )
@@ -72,10 +140,10 @@ export default function PathPage({
   const pct        = lessons.length ? Math.round((completed / lessons.length) * 100) : 0
 
   const colorMap = {
-    blue:   { gradient: 'from-blue-600/20 to-primary-600/5', badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400', bar: 'primary' },
-    green:  { gradient: 'from-emerald-600/20 to-teal-600/5', badge: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400', bar: 'emerald' },
-    orange: { gradient: 'from-orange-600/20 to-amber-600/5', badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400', bar: 'orange' },
-    purple: { gradient: 'from-violet-600/20 to-purple-600/5', badge: 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400', bar: 'violet' },
+    blue:   { gradient: 'from-blue-600/20 to-primary-600/5',   bar: 'primary' },
+    green:  { gradient: 'from-emerald-600/20 to-teal-600/5',   bar: 'emerald' },
+    orange: { gradient: 'from-orange-600/20 to-amber-600/5',   bar: 'orange'  },
+    purple: { gradient: 'from-violet-600/20 to-purple-600/5',  bar: 'violet'  },
   }
   const c = colorMap[color] ?? colorMap.blue
 
@@ -135,19 +203,31 @@ export default function PathPage({
         </div>
       )}
 
-      {/* Lesson list */}
+      {/* Lesson card grid */}
       <div className="card-glass rounded-2xl p-6">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-5">Lessons</h2>
-        <div className="space-y-2.5">
-          {lessons.map((lesson, idx) => (
-            <LessonCard key={lesson.id} lesson={lesson} index={idx} onToggle={toggleLesson} />
-          ))}
-          {lessons.length === 0 && (
-            <p className="text-slate-400 dark:text-slate-500 text-sm text-center py-10">
-              Content coming soon…
-            </p>
-          )}
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Lessons</h2>
+          <span className="text-xs text-slate-400 dark:text-slate-500">
+            {completed} / {lessons.length} completed
+          </span>
         </div>
+
+        {lessons.length === 0 ? (
+          <p className="text-slate-400 dark:text-slate-500 text-sm text-center py-10">
+            Content coming soon…
+          </p>
+        ) : (
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            {lessons.map((lesson, idx) => (
+              <LessonCard key={lesson.id} lesson={lesson} index={idx} onToggle={toggleLesson} />
+            ))}
+          </motion.div>
+        )}
       </div>
     </Layout>
   )
