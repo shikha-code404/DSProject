@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
         setIsLoading(false)
       }
     }
-    
+
     initSession()
 
     // 2. Listen to auth changes
@@ -64,12 +64,23 @@ export function AuthProvider({ children }) {
   async function logout() {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
+    window.location.href = '/'
   }
 
   async function verifyCode(code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (error) throw error
     return data
+  }
+
+  async function loginWithOAuth(provider) {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,  // 'github' here added manually 
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
+    if (error) throw error
   }
 
   async function resendConfirmationEmail(email) {
@@ -90,6 +101,7 @@ export function AuthProvider({ children }) {
       isConfirmed: !!user?.email_confirmed_at,
       login,
       signup,
+      loginWithOAuth,
       logout,
       verifyCode,
       resendConfirmationEmail,

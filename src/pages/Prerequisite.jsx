@@ -44,15 +44,6 @@ const INITIAL_TOPICS = [
   { id: 1,  order: 1,  title: 'Variables & Data Types',       description: 'int, float, char, bool, string',            difficulty: 'beginner',     duration: '30 min', completed: true  },
   { id: 2,  order: 2,  title: 'Input / Output',               description: 'cin, cout, printf, scanf',                  difficulty: 'beginner',     duration: '20 min', completed: true  },
   { id: 3,  order: 3,  title: 'Operators & Expressions',      description: 'Arithmetic, relational, logical operators',  difficulty: 'beginner',     duration: '25 min', completed: true  },
-  { id: 4,  order: 4,  title: 'Control Flow',                 description: 'if, else, switch statements',               difficulty: 'beginner',     duration: '35 min', completed: false, link: '/prerequisite/c-module' },
-  { id: 5,  order: 5,  title: 'Loops',                        description: 'for, while, do-while loops',                difficulty: 'beginner',     duration: '40 min', completed: false, link: '/prerequisite/c-module' },
-  { id: 6,  order: 6,  title: 'Functions',                    description: 'Defining, calling, recursion basics',        difficulty: 'beginner',     duration: '50 min', completed: false },
-  { id: 7,  order: 7,  title: 'Arrays & Strings',             description: '1D/2D arrays, string manipulation',         difficulty: 'beginner',     duration: '60 min', completed: false },
-  { id: 8,  order: 8,  title: 'Pointers',                     description: 'Memory addresses, pointer arithmetic',      difficulty: 'intermediate', duration: '55 min', completed: false },
-  { id: 9,  order: 9,  title: 'References & Pass by Ref',     description: 'l-value refs, efficient parameter passing',  difficulty: 'intermediate', duration: '35 min', completed: false },
-  { id: 10, order: 10, title: 'Structures',                   description: 'User-defined types, nested structs',         difficulty: 'beginner',     duration: '40 min', completed: false },
-  { id: 11, order: 11, title: 'STL Introduction',             description: 'vector, map, set, pair — the basics',       difficulty: 'intermediate', duration: '70 min', completed: false, link: 'https://cppreference.com' },
-  { id: 12, order: 12, title: 'Time & Space Complexity',      description: 'Big-O notation, complexity analysis',        difficulty: 'intermediate', duration: '45 min', completed: false },
 ]
 
 const FAQS = [
