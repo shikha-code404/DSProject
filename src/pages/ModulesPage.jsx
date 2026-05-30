@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import Layout from '../components/layout/Layout'
 import { useAuth } from '../contexts/AuthContext'
+import { usePrereqProgress } from '../hooks/usePrereqProgress'
 
 /* ─── Module definitions ─── */
 const MODULES = [
@@ -16,8 +17,8 @@ const MODULES = [
     description: 'Set up your environment, learn C++ basics, and get ready to write real algorithms.',
     icon: BookOpen,
     to: '/prerequisite',
-    lessons: 8,
-    duration: '3–4 hrs',
+    lessons: 3,
+    duration: '1.5 hrs',
     difficulty: 'Beginner',
     diffColor: 'text-emerald-400',
     progress: 60,
@@ -26,7 +27,7 @@ const MODULES = [
     ring: 'ring-blue-500/20',
     tag: 'Start Here',
     tagColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    topics: ['MinGW Setup', 'C++ Basics', 'Control Flow', 'Pointers'],
+    topics: ['Data Types', 'Input / Output', 'Operators'],
     locked: false,
   },
   {
@@ -40,7 +41,7 @@ const MODULES = [
     duration: '10–12 hrs',
     difficulty: 'Easy',
     diffColor: 'text-emerald-400',
-    progress: 20,
+    progress: 0,
     gradient: 'from-emerald-500 to-green-400',
     glow: 'shadow-emerald-500/25',
     ring: 'ring-emerald-500/20',
@@ -202,6 +203,19 @@ function ModuleCard({ module }) {
 export default function ModulesPage() {
   const { user } = useAuth()
   const navigate  = useNavigate()
+  const { pct, quizPassed } = usePrereqProgress()
+
+  const isPrereqDone = pct === 100 && quizPassed
+
+  const displayModules = MODULES.map(mod => {
+    if (mod.id === 'prerequisite') {
+      return { ...mod, progress: pct }
+    }
+    if (mod.id === 'beginner') {
+      return { ...mod, locked: !isPrereqDone }
+    }
+    return mod
+  })
 
   return (
     <Layout fullWidth>
@@ -255,7 +269,7 @@ export default function ModulesPage() {
           animate="show"
           className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6"
         >
-          {MODULES.map(mod => (
+          {displayModules.map(mod => (
             <ModuleCard key={mod.id} module={mod} />
           ))}
         </motion.div>

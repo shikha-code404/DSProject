@@ -4,6 +4,7 @@ import { ThemeProvider }   from './contexts/ThemeContext'
 import { AuthProvider }    from './contexts/AuthContext'
 import { ToastProvider }   from './components/ui/Toast'
 import ProtectedRoute      from './components/ProtectedRoute'
+import { ErrorBoundary }   from './components/ErrorBoundary'
 
 /* ─── Pages ─── */
 import LandingPage      from './pages/LandingPage'
@@ -18,6 +19,10 @@ import IntermediatePath from './pages/IntermediatePath'
 import AdvancedPath     from './pages/AdvancedPath'
 import Profile          from './pages/Profile'
 import CControlFlowModule from './pages/modules/CControlFlowModule'
+import DataTypesVariables from './pages/modules/DataTypesVariables'
+import IoModule           from './pages/modules/IoModule'
+import OperatorsExpressions from './pages/modules/OperatorsExpressions'
+import Quiz               from './pages/modules/Quiz'
 
 export default function App() {
   return (
@@ -26,7 +31,8 @@ export default function App() {
         <ToastProvider>
           <BrowserRouter>
             <AnimatePresence mode="wait">
-              <Routes>
+              <ErrorBoundary>
+                <Routes>
                 {/* ── Public ── */}
                 <Route path="/"       element={<LandingPage />} />
                 <Route path="/login"  element={<Login />} />
@@ -58,6 +64,18 @@ export default function App() {
                 <Route path="/prerequisite/c-module" element={
                   <ProtectedRoute><CControlFlowModule /></ProtectedRoute>
                 } />
+                <Route path="/prerequisite/data-types" element={
+                  <ProtectedRoute><DataTypesVariables /></ProtectedRoute>
+                } />
+                <Route path="/prerequisite/io-module" element={
+                  <ProtectedRoute><IoModule /></ProtectedRoute>
+                } />
+                <Route path="/prerequisite/operators" element={
+                  <ProtectedRoute><OperatorsExpressions /></ProtectedRoute>
+                } />
+                <Route path="/prerequisite/quiz" element={
+                  <ProtectedRoute><Quiz /></ProtectedRoute>
+                } />
 
                 {/* ── Legacy redirect: old "/" dashboard → /home ── */}
                 <Route path="/dashboard" element={<Navigate to="/home" replace />} />
@@ -65,6 +83,7 @@ export default function App() {
                 {/* ── 404 fallback ── */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
+              </ErrorBoundary>
             </AnimatePresence>
           </BrowserRouter>
         </ToastProvider>

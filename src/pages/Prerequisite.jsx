@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronRight, Download, Play, Clock, BookOpen, User,
   CheckCircle, HelpCircle, ChevronDown, Terminal, ExternalLink,
@@ -9,6 +9,7 @@ import {
 import Layout from '../components/layout/Layout'
 import SubtopicsTable from '../components/SubtopicsTable'
 import ProgressBar from '../components/ui/ProgressBar'
+import { usePrereqProgress } from '../hooks/usePrereqProgress'
 import clsx from 'clsx'
 
 const INSTALL_STEPS = [
@@ -40,12 +41,6 @@ const INSTALL_STEPS = [
   },
 ]
 
-const INITIAL_TOPICS = [
-  { id: 1,  order: 1,  title: 'Variables & Data Types',       description: 'int, float, char, bool, string',            difficulty: 'beginner',     duration: '30 min', completed: true  },
-  { id: 2,  order: 2,  title: 'Input / Output',               description: 'cin, cout, printf, scanf',                  difficulty: 'beginner',     duration: '20 min', completed: true  },
-  { id: 3,  order: 3,  title: 'Operators & Expressions',      description: 'Arithmetic, relational, logical operators',  difficulty: 'beginner',     duration: '25 min', completed: true  },
-]
-
 const FAQS = [
   { q: 'Do I need prior programming experience?', a: 'No! This module starts from absolute zero. You will learn everything you need in C++ from scratch.' },
   { q: 'Which IDE should I use?',                  a: 'We recommend VS Code with the C/C++ extension. You can also use Code::Blocks for a simpler setup.' },
@@ -53,111 +48,7 @@ const FAQS = [
   { q: 'Is C++ mandatory for DSA?',                a: 'Not mandatory, but highly recommended. C++ gives you the finest control over memory and performance.' },
 ]
 
-function FeaturedModuleCard() {
-  const navigate = useNavigate()
 
-  const PILLS = [
-    { emoji: '🔀', label: 'if / else' },
-    { emoji: '🔁', label: 'Loops' },
-    { emoji: '📍', label: 'Pointers' },
-    { emoji: '🧮', label: 'Arrays' },
-    { emoji: '❓', label: 'Quizzes' },
-  ]
-
-  return (
-    <motion.div
-      id="featured-c-module-card"
-      role="button"
-      tabIndex={0}
-      onClick={() => navigate('/prerequisite/c-module')}
-      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && navigate('/prerequisite/c-module')}
-      whileHover={{ y: -3, boxShadow: '0 12px 40px rgba(99,102,241,0.18)' }}
-      whileTap={{ scale: 0.985 }}
-      transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-      className="
-        relative overflow-hidden rounded-2xl cursor-pointer
-        border border-primary-200 dark:border-primary-800/60
-        bg-gradient-to-br from-white via-primary-50/40 to-cyan-50/30
-        dark:from-navy-800 dark:via-primary-900/20 dark:to-cyan-900/10
-        p-6 group select-none
-      "
-      aria-label="Open Control Flow & Pointers module"
-    >
-      {/* decorative blobs */}
-      <div className="pointer-events-none absolute -top-10 -right-10 w-44 h-44 rounded-full bg-primary-400/10 dark:bg-primary-500/10 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-cyan-400/10 dark:bg-cyan-500/10 blur-2xl" />
-
-      {/* top row: badge row + New badge */}
-      <div className="flex items-start justify-between gap-3 mb-4 relative z-10">
-        {/* C Programming badge */}
-        <div className="flex items-center gap-2">
-          <span className="
-            inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide
-            bg-primary-100 dark:bg-primary-900/40
-            text-primary-700 dark:text-primary-300
-            border border-primary-200 dark:border-primary-700/60
-          ">
-            <Zap className="w-3 h-3" />
-            C Programming
-          </span>
-        </div>
-
-        {/* Animated "New" badge */}
-        <span className="
-          inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold
-          bg-emerald-50 dark:bg-emerald-900/30
-          text-emerald-700 dark:text-emerald-300
-          border border-emerald-200 dark:border-emerald-700/50
-          shrink-0
-        ">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
-          New
-        </span>
-      </div>
-
-      {/* Title + subtitle */}
-      <div className="relative z-10 mb-4">
-        <h3 className="text-lg font-black font-head text-slate-900 dark:text-white mb-1.5 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-          Control Flow &amp; Pointers
-        </h3>
-        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-          if/else, loops, pointers, arrays — with interactive quizzes
-        </p>
-      </div>
-
-      {/* Topic pills */}
-      <div className="flex flex-wrap gap-2 mb-5 relative z-10">
-        {PILLS.map(({ emoji, label }) => (
-          <span key={label} className="
-            inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium
-            bg-white/70 dark:bg-navy-700/60
-            text-slate-600 dark:text-slate-300
-            border border-slate-200/80 dark:border-white/10
-          ">
-            {emoji} {label}
-          </span>
-        ))}
-      </div>
-
-      {/* CTA row */}
-      <div className="flex items-center justify-between relative z-10">
-        <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5" /> ~90 min · 10 sections · Mini quiz
-        </span>
-        <span className="
-          inline-flex items-center gap-1.5 text-sm font-semibold
-          text-primary-600 dark:text-primary-400
-          group-hover:gap-2.5 transition-all duration-200
-        ">
-          Start Module <ArrowRight className="w-4 h-4" />
-        </span>
-      </div>
-    </motion.div>
-  )
-}
 
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false)
@@ -184,13 +75,7 @@ function FaqItem({ q, a }) {
 }
 
 export default function Prerequisite() {
-  const [topics, setTopics] = useState(INITIAL_TOPICS)
-  const completed = topics.filter(t => t.completed).length
-  const pct       = Math.round((completed / topics.length) * 100)
-
-  function toggleComplete(id) {
-    setTopics(ts => ts.map(t => t.id === id ? { ...t, completed: !t.completed } : t))
-  }
+  const { topics, toggleComplete, completedCount, pct, totalCount, quizPassed } = usePrereqProgress()
 
   return (
     <Layout>
@@ -296,14 +181,7 @@ export default function Prerequisite() {
             </div>
           </motion.section>
 
-          {/* ── Featured Module Card ── */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-          >
-            <FeaturedModuleCard />
-          </motion.section>
+
 
           {/* Subtopics */}
           <motion.section
@@ -318,11 +196,55 @@ export default function Prerequisite() {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white">C++ Subtopics</h2>
-                <p className="text-xs text-slate-400">{completed}/{topics.length} topics completed</p>
+                <p className="text-xs text-slate-400">{completedCount}/{totalCount} topics completed</p>
               </div>
             </div>
             <SubtopicsTable topics={topics} onComplete={toggleComplete} />
           </motion.section>
+
+          {/* Section Completion / Next Section */}
+          <AnimatePresence>
+            {completedCount === totalCount && (
+              <motion.section
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 32 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                className="card-glass rounded-2xl p-6 flex flex-col items-center text-center border border-emerald-500/20 overflow-hidden"
+              >
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+                  <CheckCircle className="w-6 h-6 text-emerald-500" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                  Section Completed!
+                </h3>
+                {!quizPassed ? (
+                  <>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                      You've finished all modules. Take the quiz to unlock the next section.
+                    </p>
+                    <Link
+                      to="/prerequisite/quiz"
+                      className="btn-primary py-2.5 px-6"
+                    >
+                      Take Section Quiz
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-6 font-medium">
+                      Quiz passed! You are ready to move on.
+                    </p>
+                    <Link
+                      to="/beginner"
+                      className="inline-flex items-center gap-2 btn-primary py-2.5 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 shadow-emerald-500/25 border-0 text-white"
+                    >
+                      Next Section: Beginner <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </>
+                )}
+              </motion.section>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Sidebar */}
@@ -338,8 +260,8 @@ export default function Prerequisite() {
             <ul className="space-y-3">
               {[
                 { icon: Clock,       label: 'Est. Time',   value: '8–12 hours' },
-                { icon: BookOpen,    label: 'Topics',      value: `${topics.length} lessons` },
-                { icon: CheckCircle, label: 'Completed',   value: `${completed} / ${topics.length}` },
+                { icon: BookOpen,    label: 'Topics',      value: `${totalCount} lessons` },
+                { icon: CheckCircle, label: 'Completed',   value: `${completedCount} / ${totalCount}` },
                 { icon: User,        label: 'Instructor',  value: 'Upcurve Team' },
               ].map(({ icon: Icon, label, value }) => (
                 <li key={label} className="flex items-center gap-3 text-sm">

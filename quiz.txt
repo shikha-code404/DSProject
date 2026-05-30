@@ -1,0 +1,42 @@
+What is the output of int x = 5; x += 3; cout << x;?
+A) 5
+B) 3
+C) 8 
+--
+D) 15
+Which has higher precedence — * or +?
+A) +
+B) * 
+--
+C) Both are equal
+D) Depends on the compiler
+What is the result of 5 > 3 && 2 < 1?
+A) true
+B) false 
+--
+C) 1
+D) Error
+What is the result of 10 % 3 in C++?
+A) 3
+B) 1 
+--
+C) 0
+D) 33
+Which data type stores a single character?
+A) string
+B) char 
+--
+C) word
+D) int
+Which of these is NOT a valid identifier?
+A) _myVar
+B) total2
+C) 2total 
+--
+D) myTotal
+In the I/O flow, what is the correct order?
+A) Program → User → Screen
+B) Screen → Program → User
+C) User → Program → Screen 
+--
+D) Screen → User → Program

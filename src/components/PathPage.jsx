@@ -25,7 +25,7 @@ const container = {
   show:   { transition: { staggerChildren: 0.05 } },
 }
 
-function LessonCard({ lesson, index, onToggle }) {
+function LessonCard({ lesson, index, onToggle, onLockedClick }) {
   const { bar, ring, glow } = diffMeta(lesson.difficulty)
   const done   = lesson.completed
   const locked = lesson.locked
@@ -33,6 +33,9 @@ function LessonCard({ lesson, index, onToggle }) {
   return (
     <motion.div
       variants={cardVariant}
+      onClick={() => {
+        if (locked && onLockedClick) onLockedClick()
+      }}
       className={clsx(
         'group relative flex flex-col rounded-2xl overflow-hidden',
         'border border-slate-200 dark:border-white/8',
@@ -104,8 +107,14 @@ function LessonCard({ lesson, index, onToggle }) {
 
           {/* Right: toggle button */}
           <button
-            onClick={() => !locked && onToggle(lesson.id)}
-            disabled={locked}
+            onClick={(e) => {
+              e.stopPropagation()
+              if (locked) {
+                if (onLockedClick) onLockedClick()
+              } else {
+                onToggle(lesson.id)
+              }
+            }}
             aria-label={done ? 'Mark incomplete' : 'Mark complete'}
             id={`toggle-lesson-${lesson.id}`}
             className={clsx(
@@ -134,6 +143,7 @@ export default function PathPage({
   difficulty = 'beginner',
   lessons: initialLessons = [],
   prerequisiteText,
+  onLockedClick
 }) {
   const [lessons, setLessons] = useState(initialLessons)
   const completed  = lessons.filter(l => l.completed).length
@@ -224,7 +234,7 @@ export default function PathPage({
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {lessons.map((lesson, idx) => (
-              <LessonCard key={lesson.id} lesson={lesson} index={idx} onToggle={toggleLesson} />
+              <LessonCard key={lesson.id} lesson={lesson} index={idx} onToggle={toggleLesson} onLockedClick={onLockedClick} />
             ))}
           </motion.div>
         )}

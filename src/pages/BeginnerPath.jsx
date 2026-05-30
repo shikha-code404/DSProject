@@ -1,5 +1,7 @@
 import { Zap } from 'lucide-react'
 import PathPage from '../components/PathPage'
+import { usePrereqProgress } from '../hooks/usePrereqProgress'
+import { useToast } from '../components/ui/Toast'
 
 const LESSONS = [
   { id: 1,  order: 1,  title: 'What is Data Structure',       description: 'Linear vs Non-linear: Arrays, Trees, Stacks, Graphs',   difficulty: 'beginner',     duration: '30 min', completed: false },
@@ -32,6 +34,24 @@ const LESSONS = [
 ]
 
 export default function BeginnerPath() {
+  const { pct, quizPassed } = usePrereqProgress()
+  const { addToast } = useToast()
+
+  const isPrereqDone = pct === 100 && quizPassed
+
+  const lessonsWithLock = LESSONS.map(l => ({
+    ...l,
+    locked: !isPrereqDone
+  }))
+
+  const handleLockedClick = () => {
+    addToast({
+      type: 'warning',
+      title: 'Prerequisite Incomplete',
+      message: 'Please complete the previous section properly first with 100% section completion and quiz passed successfully.'
+    })
+  }
+
   return (
     <PathPage
       title="Beginner Path"
@@ -39,8 +59,8 @@ export default function BeginnerPath() {
       icon={Zap}
       color="green"
       difficulty="beginner"
-      lessons={LESSONS}
-      prerequisiteText="Make sure you've completed the Prerequisite module (C++ setup) before starting."
+      lessons={lessonsWithLock}
+      onLockedClick={handleLockedClick}
     />
   )
 }

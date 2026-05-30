@@ -36,7 +36,6 @@ function TopicCard({ topic, idx, onComplete }) {
         'hover:shadow-xl hover:-translate-y-1',
         `hover:${glow}`,
         'transition-all duration-300',
-        done && 'opacity-60',
       )}
     >
       {/* Coloured top stripe */}
@@ -63,9 +62,7 @@ function TopicCard({ topic, idx, onComplete }) {
         {/* Title */}
         <h3 className={clsx(
           'font-bold text-sm leading-snug mb-1 pr-6',
-          done
-            ? 'line-through text-slate-400 dark:text-slate-500'
-            : 'text-slate-800 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors',
+          'text-slate-800 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors'
         )}>
           {topic.title}
         </h3>
@@ -103,10 +100,10 @@ function TopicCard({ topic, idx, onComplete }) {
                   id={`start-topic-${topic.id}`}
                   className="inline-flex items-center gap-1 text-xs font-semibold
                              text-primary-500 hover:text-primary-400 transition-colors"
-                  title="Start module"
+                  title={done ? 'Revisit module' : 'Start module'}
                 >
                   <PlayCircle className="w-4 h-4" />
-                  <span>Start</span>
+                  <span>{done ? 'Revisit' : 'Start'}</span>
                 </Link>
               ) : (
                 <a
