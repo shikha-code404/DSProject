@@ -596,11 +596,6 @@
 
     <p>Here's something that catches beginners off guard: <strong>if you omit <code>break</code>, the program does not stop at the matching case — it keeps running through every case below it</strong>. This behavior is called <em>fall-through</em>.</p>
 
-    <div class="callout danger">
-      <span class="callout-icon">🚨</span>
-      <p><strong>Fall-through without break:</strong> If <code>day = 2</code> and you remove all <code>break</code> statements, the output would be <code>TuesdayWednesdayInvalid day</code> — because after matching case 2, execution literally "falls through" into case 3 and then into default. This is almost always a bug. Always add <code>break</code> unless you specifically intend fall-through behavior.</p>
-    </div>
-
     <h3><span class="h3-num">3</span> switch vs if-else — When to Use Which</h3>
     <table class="compare-table">
       <tr><th>Feature</th><th><code>if / else-if</code></th><th><code>switch</code></th></tr>

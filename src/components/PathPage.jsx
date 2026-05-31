@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ChevronRight, Clock, Lock, CheckCircle, PlayCircle, ArrowRight } from 'lucide-react'
 import Layout from '../components/layout/Layout'
@@ -26,6 +26,7 @@ const container = {
 }
 
 function LessonCard({ lesson, index, onToggle, onLockedClick }) {
+  const navigate = useNavigate()
   const { bar, ring, glow } = diffMeta(lesson.difficulty)
   const done   = lesson.completed
   const locked = lesson.locked
@@ -34,7 +35,11 @@ function LessonCard({ lesson, index, onToggle, onLockedClick }) {
     <motion.div
       variants={cardVariant}
       onClick={() => {
-        if (locked && onLockedClick) onLockedClick()
+        if (locked) {
+          if (onLockedClick) onLockedClick()
+        } else if (lesson.link) {
+          navigate(lesson.link)
+        }
       }}
       className={clsx(
         'group relative flex flex-col rounded-2xl overflow-hidden',
@@ -46,6 +51,7 @@ function LessonCard({ lesson, index, onToggle, onLockedClick }) {
         'transition-all duration-300',
         locked  && 'opacity-55 cursor-not-allowed',
         done    && 'opacity-65',
+        !locked && lesson.link && 'cursor-pointer',
       )}
     >
       {/* Coloured top stripe */}
@@ -161,6 +167,20 @@ export default function PathPage({
     setLessons(ls => ls.map(l => l.id === id ? { ...l, completed: !l.completed } : l))
   }
 
+  const hasChapters = useMemo(() => lessons.some(l => l.chapter), [lessons])
+
+  const groupedLessons = useMemo(() => {
+    if (!hasChapters) return null
+    return lessons.reduce((groups, lesson) => {
+      const groupName = lesson.chapter || 'Other'
+      if (!groups[groupName]) {
+        groups[groupName] = []
+      }
+      groups[groupName].push(lesson)
+      return groups
+    }, {})
+  }, [lessons, hasChapters])
+
   return (
     <Layout>
       {/* Breadcrumb */}
@@ -215,7 +235,7 @@ export default function PathPage({
 
       {/* Lesson card grid */}
       <div className="card-glass rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">Lessons</h2>
           <span className="text-xs text-slate-400 dark:text-slate-500">
             {completed} / {lessons.length} completed
@@ -226,6 +246,44 @@ export default function PathPage({
           <p className="text-slate-400 dark:text-slate-500 text-sm text-center py-10">
             Content coming soon…
           </p>
+        ) : hasChapters ? (
+          <div className="space-y-10">
+            {Object.entries(groupedLessons).map(([chapterName, chapterLessons], groupIdx) => (
+              <div key={chapterName} className="space-y-5">
+                <div className="flex items-center gap-3 pb-2.5 border-b border-slate-200 dark:border-white/15">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-primary-500/10 text-primary-500 text-sm font-black font-mono">
+                    {String(groupIdx + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="text-base font-black text-slate-800 dark:text-white font-head tracking-tight">
+                    {chapterName}
+                  </h3>
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-medium ml-auto bg-slate-100 dark:bg-navy-700/50 px-2.5 py-1 rounded-lg">
+                    {chapterLessons.filter(l => l.completed).length} / {chapterLessons.length} completed
+                  </span>
+                </div>
+
+                <motion.div
+                  variants={container}
+                  initial="hidden"
+                  animate="show"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+                >
+                  {chapterLessons.map((lesson) => {
+                    const globalIdx = lessons.findIndex(l => l.id === lesson.id)
+                    return (
+                      <LessonCard
+                        key={lesson.id}
+                        lesson={lesson}
+                        index={globalIdx}
+                        onToggle={toggleLesson}
+                        onLockedClick={onLockedClick}
+                      />
+                    )
+                  })}
+                </motion.div>
+              </div>
+            ))}
+          </div>
         ) : (
           <motion.div
             variants={container}

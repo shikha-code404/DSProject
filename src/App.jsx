@@ -22,6 +22,9 @@ import CControlFlowModule from './pages/modules/CControlFlowModule'
 import DataTypesVariables from './pages/modules/DataTypesVariables'
 import IoModule           from './pages/modules/IoModule'
 import OperatorsExpressions from './pages/modules/OperatorsExpressions'
+import ControlStatements   from './pages/modules/ControlStatements'
+import LoopsModule         from './pages/modules/LoopsModule'
+import StlIntroduction    from './pages/modules/StlIntroduction'
 import Quiz               from './pages/modules/Quiz'
 
 export default function App() {
@@ -72,6 +75,15 @@ export default function App() {
                 } />
                 <Route path="/prerequisite/operators" element={
                   <ProtectedRoute><OperatorsExpressions /></ProtectedRoute>
+                } />
+                <Route path="/beginner/control-statements" element={
+                  <ProtectedRoute><ControlStatements /></ProtectedRoute>
+                } />
+                <Route path="/beginner/loops" element={
+                  <ProtectedRoute><LoopsModule /></ProtectedRoute>
+                } />
+                <Route path="/beginner/stl-introduction" element={
+                  <ProtectedRoute><StlIntroduction /></ProtectedRoute>
                 } />
                 <Route path="/prerequisite/quiz" element={
                   <ProtectedRoute><Quiz /></ProtectedRoute>

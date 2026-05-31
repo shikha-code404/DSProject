@@ -37,7 +37,7 @@ const MODULES = [
     description: 'Arrays, strings, recursion, and searching. Build the foundation of algorithmic thinking.',
     icon: Zap,
     to: '/beginner',
-    lessons: 24,
+    lessons: 49,
     duration: '10–12 hrs',
     difficulty: 'Easy',
     diffColor: 'text-emerald-400',
