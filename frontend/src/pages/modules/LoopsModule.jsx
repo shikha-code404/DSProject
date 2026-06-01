@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, Code2, CheckCircle } from 'lucide-react';
 import ModuleLayout from '../../components/layout/ModuleLayout';
 import CodingArenaOverlay from '../../components/visualizers/CodingArenaOverlay';
+import { InteractiveVisualizer } from '../../components/visualizers/InteractiveVisualizer';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import './PrereqModules.css';
@@ -99,6 +100,7 @@ export default function LoopsModule() {
           <a class="nav-item" href="#hero"><span class="nav-dot"></span>Overview</a>
           <a class="nav-item" href="#components"><span class="nav-dot"></span>Core Components</a>
           <a class="nav-item" href="#types"><span class="nav-dot"></span>Loop Types</a>
+          <a class="nav-item" href="#section-simulation"><span class="nav-dot"></span>Simulation</a>
           <a class="nav-item" href="#code"><span class="nav-dot"></span>Code Examples</a>
           <a class="nav-item" href="#practice"><span class="nav-dot"></span>Practice</a>
           <a class="nav-item" href="#summary"><span class="nav-dot"></span>Summary</a>
@@ -241,7 +243,11 @@ export default function LoopsModule() {
                 </div>
               </div>
             </section>
+            ` }} />
 
+            <InteractiveVisualizer topic="loops" />
+
+            <div dangerouslySetInnerHTML={{ __html: `
             <!-- CODE EXAMPLES -->
             <section id="code">
               <div class="section-label">04 / Code Examples</div>

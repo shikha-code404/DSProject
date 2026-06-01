@@ -26,6 +26,7 @@ import ControlStatements   from './pages/modules/ControlStatements'
 import LoopsModule         from './pages/modules/LoopsModule'
 import StlIntroduction    from './pages/modules/StlIntroduction'
 import Quiz               from './pages/modules/Quiz'
+import ArrayStrings       from './pages/modules/ArrayStrings'
 
 export default function App() {
   return (
@@ -81,6 +82,12 @@ export default function App() {
                 } />
                 <Route path="/beginner/loops" element={
                   <ProtectedRoute><LoopsModule /></ProtectedRoute>
+                } />
+                <Route path="/beginner/array-string" element={
+                  <ProtectedRoute><ArrayStrings /></ProtectedRoute>
+                } />
+                <Route path="/beginner/Array & String" element={
+                  <ProtectedRoute><ArrayStrings /></ProtectedRoute>
                 } />
                 <Route path="/beginner/stl-introduction" element={
                   <ProtectedRoute><StlIntroduction /></ProtectedRoute>

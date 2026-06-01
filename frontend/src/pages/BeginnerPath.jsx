@@ -1,14 +1,17 @@
+import { useEffect, useState } from 'react'
 import { Zap } from 'lucide-react'
 import PathPage from '../components/PathPage'
 import { usePrereqProgress } from '../hooks/usePrereqProgress'
 import { useToast } from '../components/ui/Toast'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 
 const LESSONS = [
   // Chapter 1: Programming Fundamentals
   { id: 1,  chapter: 'Programming Fundamentals', title: 'What is Data Structure', description: 'Linear vs Non-linear data structures, standard algorithms', difficulty: 'beginner', duration: '30 min', completed: false },
   { id: 2,  chapter: 'Programming Fundamentals', title: 'Control Statements', description: 'Conditional flow: if, else, switch', difficulty: 'beginner', duration: '35 min', completed: false, link: '/beginner/control-statements' },
   { id: 3,  chapter: 'Programming Fundamentals', title: 'Loops', description: 'Repetitive flow control: for, while, do-while', difficulty: 'beginner', duration: '40 min', completed: false, link: '/beginner/loops' },
-  { id: 4,  chapter: 'Programming Fundamentals', title: 'Arrays & Strings', description: 'Basics of contiguous memory and character sequences', difficulty: 'beginner', duration: '60 min', completed: false },
+  { id: 4,  chapter: 'Programming Fundamentals', title: 'Arrays & Strings', description: 'Basics of contiguous memory and character sequences', difficulty: 'beginner', duration: '60 min', completed: false, link: '/beginner/array-string' },
   { id: 5,  chapter: 'Programming Fundamentals', title: 'Structures', description: 'Custom data groups using structures in C/C++', difficulty: 'beginner', duration: '40 min', completed: false },
   { id: 6,  chapter: 'Programming Fundamentals', title: 'Pointers', description: 'Memory addressing, referencing, and dereferencing', difficulty: 'intermediate', duration: '55 min', completed: false },
   { id: 7,  chapter: 'Programming Fundamentals', title: 'Pass By Value vs Pass By Reference', description: 'Argument passing models and memory impacts', difficulty: 'intermediate', duration: '35 min', completed: false },
@@ -79,13 +82,93 @@ const LESSONS = [
 export default function BeginnerPath() {
   const { pct, quizPassed } = usePrereqProgress()
   const { addToast } = useToast()
+  const { user } = useAuth()
+
+  const [completedModules, setCompletedModules] = useState({
+    'control-statements': false,
+    'loops': false,
+    'array-string': false,
+    'stl': false,
+  })
+
+  useEffect(() => {
+    let active = true
+
+    async function loadCompletions() {
+      try {
+        // 1. Fetch practice problems from Supabase
+        const { data: problems, error: pError } = await supabase
+          .from('practice_problems')
+          .select('id, module_id')
+        if (pError) throw pError
+
+        let completedProblemIds = []
+        if (user) {
+          // 2. Fetch completed submissions for this user
+          const { data: submissions, error: sError } = await supabase
+            .from('submissions')
+            .select('problem_id')
+            .eq('user_id', user.id)
+            .eq('status', 'Completed')
+          if (sError) throw sError
+          completedProblemIds = submissions ? submissions.map(s => s.problem_id) : []
+        }
+
+        if (!active) return
+
+        // 3. Map module completion status
+        const moduleProblemsMap = {}
+        problems?.forEach(p => {
+          if (!moduleProblemsMap[p.module_id]) {
+            moduleProblemsMap[p.module_id] = []
+          }
+          moduleProblemsMap[p.module_id].push(p.id)
+        })
+
+        const modulesToCheck = ['control-statements', 'loops', 'array-string', 'stl']
+        const newCompletions = {}
+        modulesToCheck.forEach(modId => {
+          const problemIds = moduleProblemsMap[modId] || []
+          if (problemIds.length > 0) {
+            newCompletions[modId] = problemIds.every(id => completedProblemIds.includes(id))
+          } else {
+            newCompletions[modId] = false
+          }
+        })
+
+        setCompletedModules(newCompletions)
+      } catch (err) {
+        console.error('Failed to load dynamic module completions:', err)
+      }
+    }
+
+    loadCompletions()
+
+    return () => {
+      active = false
+    }
+  }, [user])
 
   const isPrereqDone = pct === 100 && quizPassed
 
-  const lessonsWithLock = LESSONS.map(l => ({
-    ...l,
-    locked: !isPrereqDone
-  }))
+  const lessonsWithLock = LESSONS.map(l => {
+    let completed = l.completed
+    if (l.link === '/beginner/control-statements') {
+      completed = completedModules['control-statements']
+    } else if (l.link === '/beginner/loops') {
+      completed = completedModules['loops']
+    } else if (l.link === '/beginner/array-string') {
+      completed = completedModules['array-string']
+    } else if (l.link === '/beginner/stl-introduction') {
+      completed = completedModules['stl']
+    }
+
+    return {
+      ...l,
+      completed,
+      locked: !isPrereqDone
+    }
+  })
 
   const handleLockedClick = () => {
     addToast({

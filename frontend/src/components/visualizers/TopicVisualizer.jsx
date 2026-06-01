@@ -4,10 +4,7 @@ import {
     Terminal, Cpu, CheckCircle2, XCircle, Sparkles, Layers,
     Code, Keyboard, Monitor, ChevronRight, HelpCircle, Info
 } from 'lucide-react';
-import { LinkedListVisualizer } from './LinkedListVisualizer';
-import { BSTVisualizer } from './BSTVisualizer';
-import { SortingRaceVisualizer } from './SortingRaceVisualizer';
-
+import clsx from 'clsx';
 export const VisualizerContext = React.createContext(null);
 
 // ─── Shared hook: step through an array of frames ────────────────────────────
@@ -170,7 +167,7 @@ const ConditionalsVis = ({ playing, speed, onStepChange }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. LoopVis (Loop iterations) — Progress ring & timeline track
 // ─────────────────────────────────────────────────────────────────────────────
-const LoopVis = ({ playing, speed, onStepChange }) => {
+export const LoopVis = ({ playing, speed, onStepChange }) => {
     const frames = [
         { label: 'Loops let us repeat code without writing it multiple times.', i: '?', condition: 'Ready', out: [] },
         { label: 'A for loop has three parts: initialization, condition, and update.', i: '?', condition: 'Ready', out: [] },

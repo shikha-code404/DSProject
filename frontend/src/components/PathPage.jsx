@@ -25,7 +25,7 @@ const container = {
   show:   { transition: { staggerChildren: 0.05 } },
 }
 
-function LessonCard({ lesson, index, onToggle, onLockedClick }) {
+function LessonCard({ lesson, index, onLockedClick }) {
   const navigate = useNavigate()
   const { bar, ring, glow } = diffMeta(lesson.difficulty)
   const done   = lesson.completed
@@ -111,22 +111,10 @@ function LessonCard({ lesson, index, onToggle, onLockedClick }) {
             )}
           </div>
 
-          {/* Right: toggle button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              if (locked) {
-                if (onLockedClick) onLockedClick()
-              } else {
-                onToggle(lesson.id)
-              }
-            }}
-            aria-label={done ? 'Mark incomplete' : 'Mark complete'}
-            id={`toggle-lesson-${lesson.id}`}
-            className={clsx(
-              'shrink-0 transition-transform focus:outline-none',
-              !locked && 'hover:scale-110 active:scale-95',
-            )}
+          {/* Right: status indicator */}
+          <div
+            id={`status-lesson-${lesson.id}`}
+            className="shrink-0 transition-transform"
           >
             {locked
               ? <Lock        className="w-5 h-5 text-slate-400" />
@@ -134,7 +122,7 @@ function LessonCard({ lesson, index, onToggle, onLockedClick }) {
               ? <CheckCircle className="w-5 h-5 text-emerald-500" />
               : <PlayCircle  className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-primary-500 transition-colors" />
             }
-          </button>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -147,11 +135,10 @@ export default function PathPage({
   icon: Icon,
   color = 'blue',
   difficulty = 'beginner',
-  lessons: initialLessons = [],
+  lessons = [],
   prerequisiteText,
   onLockedClick
 }) {
-  const [lessons, setLessons] = useState(initialLessons)
   const completed  = lessons.filter(l => l.completed).length
   const pct        = lessons.length ? Math.round((completed / lessons.length) * 100) : 0
 
@@ -162,10 +149,6 @@ export default function PathPage({
     purple: { gradient: 'from-violet-600/20 to-purple-600/5',  bar: 'violet'  },
   }
   const c = colorMap[color] ?? colorMap.blue
-
-  function toggleLesson(id) {
-    setLessons(ls => ls.map(l => l.id === id ? { ...l, completed: !l.completed } : l))
-  }
 
   const hasChapters = useMemo(() => lessons.some(l => l.chapter), [lessons])
 
@@ -275,7 +258,6 @@ export default function PathPage({
                         key={lesson.id}
                         lesson={lesson}
                         index={globalIdx}
-                        onToggle={toggleLesson}
                         onLockedClick={onLockedClick}
                       />
                     )
@@ -292,7 +274,7 @@ export default function PathPage({
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {lessons.map((lesson, idx) => (
-              <LessonCard key={lesson.id} lesson={lesson} index={idx} onToggle={toggleLesson} onLockedClick={onLockedClick} />
+              <LessonCard key={lesson.id} lesson={lesson} index={idx} onLockedClick={onLockedClick} />
             ))}
           </motion.div>
         )}

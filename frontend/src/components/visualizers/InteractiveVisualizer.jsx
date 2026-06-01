@@ -7,6 +7,7 @@ import { cn } from '../../lib/utils';
 import { useNarration } from '../../hooks/useNarration';
 import { NarrationControls } from './NarrationControls';
 import { getIndianNarration } from '../../lib/hinglishTranslator';
+import { LoopVis, VisualizerContext as TopicVisualizerContext } from './TopicVisualizer';
 
 // ─── Shared Context and Hook ────────────────────────────
 const VisualizerContext = React.createContext(null);
@@ -169,8 +170,9 @@ const ConditionalsVis = ({ playing, speed, onStepChange }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // Interactive Visualizer Layout Wrapper
 // ─────────────────────────────────────────────────────────────────────────────
-export const InteractiveVisualizer = () => {
+export const InteractiveVisualizer = ({ topic = 'control-statements' }) => {
     const SPEEDS = [0.5, 1, 1.5, 2];
+    const isLoops = topic === 'loops';
     
     // States
     const [activeStep, setActiveStep] = useState(0);
@@ -188,8 +190,20 @@ export const InteractiveVisualizer = () => {
         }
     }, []);
 
-    // Narration Steps hardcoded for Conditionals
-    const narrationSteps = [
+    // Narration Steps dynamically resolved based on the topic
+    const loopsNarrationSteps = [
+        'Loops let us repeat code without writing it multiple times.',
+        'A for loop has three parts: initialization, condition, and update.',
+        'We start with i equals 2. This is our initialization.',
+        'The condition checks: is i less than or equal to n? If yes, we enter the loop body.',
+        'We print the value of i, which is 2. The update step adds 2 to i. Now i is 4.',
+        'We check again: is 4 <= 10? Yes! Print 4. Update: i becomes 6.',
+        'This continues: print 6, 8, and 10. When i becomes 12, the condition checks as False.',
+        'Condition checked as False. The loop terminates.',
+        'The loop ran 5 times, printing all even numbers from 2 to 10.'
+    ];
+
+    const conditionalsNarrationSteps = [
         'Conditionals: program decides action path via criteria check.',
         'We read an integer from the user. Let\'s evaluate n = -5.',
         'Evaluating first branch: is -5 > 0 ? (No → Skip branch)',
@@ -197,7 +211,15 @@ export const InteractiveVisualizer = () => {
         'Execute branch block: print "Negative" and bypass all remaining options.',
         'Execution complete: program selected exactly one path through the branches.'
     ];
+
+    const narrationSteps = isLoops ? loopsNarrationSteps : conditionalsNarrationSteps;
     const totalSteps = narrationSteps.length;
+
+    // Reset step when topic changes
+    useEffect(() => {
+        setActiveStep(0);
+        setVisPlaying(false);
+    }, [topic]);
 
     const currentText = narrationSteps[activeStep] || '';
     const { isSpeaking, isSupported } = useNarration(
@@ -225,9 +247,14 @@ export const InteractiveVisualizer = () => {
                     <Activity className="w-4 h-4 text-primary-400" />
                     Interactive Simulation
                 </div>
-                <h3 className="text-2xl font-bold tracking-tight text-slate-100">Interactive Visualizer</h3>
+                <h3 className="text-2xl font-bold tracking-tight text-slate-100">
+                    {isLoops ? "Loops Interactive Visualizer" : "Interactive Visualizer"}
+                </h3>
                 <p className="text-sm text-slate-400 max-w-2xl">
-                    Step through the algorithm visualizer in real-time. Turn on voice narration to hear explanations synced perfectly with the animation steps.
+                    {isLoops 
+                        ? "Watch how loops repeat execution by tracking counter updates, checking iteration conditions, and examining console standard output in real-time."
+                        : "Step through the algorithm visualizer in real-time. Turn on voice narration to hear explanations synced perfectly with the animation steps."
+                    }
                 </p>
             </div>
 
@@ -245,7 +272,7 @@ export const InteractiveVisualizer = () => {
                             
                             <div className="flex items-center justify-between px-6 py-4 border-b border-primary-500/15 bg-gradient-to-r from-primary-950/80 via-slate-900/80 to-[#1b1935]/80">
                                 <h4 className="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-cyan-300 to-primary-200">
-                                    Conditionals Simulation
+                                    {isLoops ? "Loops Simulation" : "Conditionals Simulation"}
                                 </h4>
                                 <span className="text-[10px] font-mono text-cyan-300 bg-primary-950 px-2 py-0.5 rounded border border-primary-500/20 shadow-md">
                                     Step {activeStep + 1} of {totalSteps}
@@ -258,13 +285,23 @@ export const InteractiveVisualizer = () => {
                                 <div className="absolute w-[240px] h-[240px] rounded-full bg-primary-500/15 blur-[100px] pointer-events-none" style={{ animationDuration: '7s' }} />
                                 
                                 <div className="relative z-10 w-full flex justify-center">
-                                    <VisualizerContext.Provider value={{ step: activeStep, setStep: setActiveStep }}>
-                                        <ConditionalsVis
-                                            playing={visPlaying}
-                                            speed={speedNum}
-                                            onStepChange={(s) => setActiveStep(s)}
-                                        />
-                                    </VisualizerContext.Provider>
+                                    {isLoops ? (
+                                        <TopicVisualizerContext.Provider value={{ step: activeStep, setStep: setActiveStep }}>
+                                            <LoopVis
+                                                playing={visPlaying}
+                                                speed={speedNum}
+                                                onStepChange={(s) => setActiveStep(s)}
+                                            />
+                                        </TopicVisualizerContext.Provider>
+                                    ) : (
+                                        <VisualizerContext.Provider value={{ step: activeStep, setStep: setActiveStep }}>
+                                            <ConditionalsVis
+                                                playing={visPlaying}
+                                                speed={speedNum}
+                                                onStepChange={(s) => setActiveStep(s)}
+                                            />
+                                        </VisualizerContext.Provider>
+                                    )}
                                 </div>
                             </div>
 
@@ -338,7 +375,7 @@ export const InteractiveVisualizer = () => {
                                     <h4 className="text-sm font-bold text-primary-300">Explanation Steps</h4>
                                 </div>
                                 <span className="text-[9px] uppercase font-mono bg-primary-900/60 border border-primary-500/10 px-2 py-0.5 rounded text-primary-400">
-                                    Interactive
+                                    {isLoops ? "Loops" : "Conditionals"}
                                 </span>
                             </div>
                             
@@ -347,7 +384,7 @@ export const InteractiveVisualizer = () => {
                                     const isActive = activeStep === idx;
                                     const isHinglish = narrationVoice === 'hinglish-classroom';
                                     const stepDisplay = isHinglish
-                                        ? getIndianNarration('control-statements', idx, stepText)
+                                        ? getIndianNarration(isLoops ? 'loops' : 'control-statements', idx, stepText)
                                         : stepText;
 
                                     return (

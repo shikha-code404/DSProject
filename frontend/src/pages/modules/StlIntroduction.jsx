@@ -295,6 +295,87 @@ export default function StlIntroduction() {
             <!-- CODE IMPLEMENTATION -->
             <section id="code">
               <div class="section-label">04 / Code Examples</div>
+              
+              <div class="section-title">Pseudocode Implementation</div>
+              <p class="section-desc">Observe the logic and standard operations of core data structures using language-independent pseudocode.</p>
+
+              <div class="code-block-wrapper" style="margin-bottom:32px;">
+                <div class="code-header">
+                  <div class="code-header-left">
+                    <div class="code-tabs">
+                      <div class="code-tab active" data-target="vector-pseudo-panel">1 — Vector</div>
+                      <div class="code-tab" data-target="stack-pseudo-panel">2 — Stack</div>
+                      <div class="code-tab" data-target="map-pseudo-panel">3 — Map</div>
+                      <div class="code-tab" data-target="iterator-pseudo-panel">4 — Iterators</div>
+                    </div>
+                  </div>
+                  <button class="copy-btn" onclick="navigator.clipboard.writeText(document.querySelector('.code-panel.active pre').innerText)">Copy</button>
+                </div>
+                
+                <div id="pseudo-blocks">
+                  <!-- VECTOR PSEUDO -->
+                  <div class="code-panel active" id="vector-pseudo-panel">
+                    <pre><span class="cmt"># 1. Vector (Dynamic Array)</span>
+<span class="kw">initialize</span> <span class="var">vector</span> <span class="var">V</span>
+<span class="var">V</span>.<span class="fn">push_back</span>(<span class="num">10</span>)      <span class="cmt"># Append 10 to vector</span>
+<span class="var">V</span>.<span class="fn">push_back</span>(<span class="num">20</span>)      <span class="cmt"># Append 20 to vector</span>
+<span class="var">V</span>.<span class="fn">push_back</span>(<span class="num">30</span>)      <span class="cmt"># Append 30 to vector</span>
+
+<span class="cmt"># Traverse vector</span>
+<span class="kw">for each</span> element <span class="var">x</span> <span class="kw">in</span> <span class="var">V</span> <span class="kw">do</span>:
+    <span class="fn">print</span> <span class="var">x</span>
+<span class="kw">end for</span>
+
+<span class="fn">print</span> <span class="var">V</span>.<span class="fn">size</span>()       <span class="cmt"># Output: 3</span></pre>
+                  </div>
+
+                  <!-- STACK PSEUDO -->
+                  <div class="code-panel" id="stack-pseudo-panel">
+                    <pre><span class="cmt"># 2. Stack (LIFO - Last In First Out)</span>
+<span class="kw">initialize</span> <span class="var">stack</span> <span class="var">S</span>
+<span class="var">S</span>.<span class="fn">push</span>(<span class="num">10</span>)           <span class="cmt"># Push 10 onto stack</span>
+<span class="var">S</span>.<span class="fn">push</span>(<span class="num">20</span>)           <span class="cmt"># Push 20 onto stack</span>
+
+<span class="fn">print</span> <span class="var">S</span>.<span class="fn">top</span>()        <span class="cmt"># Get top element (Output: 20)</span>
+<span class="var">S</span>.<span class="fn">pop</span>()              <span class="cmt"># Remove top element (20)</span>
+
+<span class="fn">print</span> <span class="var">S</span>.<span class="fn">top</span>()        <span class="cmt"># Get top element (Output: 10)</span></pre>
+                  </div>
+
+                  <!-- MAP PSEUDO -->
+                  <div class="code-panel" id="map-pseudo-panel">
+                    <pre><span class="cmt"># 3. Map (Key-Value Dictionary)</span>
+<span class="kw">initialize</span> <span class="var">map</span> <span class="var">M</span>
+<span class="var">M</span>[<span class="num">1</span>] <span class="op">=</span> <span class="str">"One"</span>         <span class="cmt"># Associate key 1 with "One"</span>
+<span class="var">M</span>[<span class="num">2</span>] <span class="op">=</span> <span class="str">"Two"</span>         <span class="cmt"># Associate key 2 with "Two"</span>
+<span class="var">M</span>[<span class="num">3</span>] <span class="op">=</span> <span class="str">"Three"</span>       <span class="cmt"># Associate key 3 with "Three"</span>
+
+<span class="cmt"># Traverse map</span>
+<span class="kw">for each</span> key-value pair <span class="var">P</span> <span class="kw">in</span> <span class="var">M</span> <span class="kw">do</span>:
+    <span class="fn">print</span> <span class="var">P</span>.<span class="var">key</span> <span class="op">+</span> <span class="str">": "</span> <span class="op">+</span> <span class="var">P</span>.<span class="var">value</span>
+<span class="kw">end for</span>
+
+<span class="kw">if</span> <span class="var">M</span>.<span class="fn">contains</span>(<span class="num">2</span>) <span class="kw">then</span>
+    <span class="fn">print</span> <span class="str">"Key 2 found!"</span>
+<span class="kw">end if</span></pre>
+                  </div>
+
+                  <!-- ITERATOR PSEUDO -->
+                  <div class="code-panel" id="iterator-pseudo-panel">
+                    <pre><span class="cmt"># 4. Iterators (Universal Traversal)</span>
+<span class="kw">initialize</span> <span class="var">vector</span> <span class="var">V</span> <span class="kw">with</span> {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>}
+
+<span class="cmt"># Create iterator pointing to start</span>
+<span class="var">it</span> <span class="op">=</span> <span class="var">V</span>.<span class="fn">begin</span>()       
+
+<span class="kw">while</span> <span class="var">it</span> <span class="op">!=</span> <span class="var">V</span>.<span class="fn">end</span>() <span class="kw">do</span>:
+    <span class="fn">print</span> <span class="op">*</span><span class="var">it</span>        <span class="cmt"># Dereference iterator to get value</span>
+    <span class="var">it</span> <span class="op">=</span> <span class="var">it</span> <span class="op">+</span> <span class="num">1</span>      <span class="cmt"># Advance iterator to next position</span>
+<span class="kw">end while</span></pre>
+                  </div>
+                </div>
+              </div>
+
               <div class="section-title">Multi-Language Implementations</div>
               <p class="section-desc">Observe and compare implementations of standard data structure operations across languages.</p>
 
