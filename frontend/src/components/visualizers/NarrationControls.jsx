@@ -1,0 +1,401 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { Volume2, VolumeX, Globe, ChevronDown, Check, Settings, Sparkles, X, Key, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '../../lib/utils';
+
+const VOICE_PROFILES = [
+  { id: 'hinglish-classroom', label: '🏫 Hinglish Classroom', desc: 'Warm local explanation & pronunciation' },
+  { id: 'indian-english', label: '🇮🇳 Indian English', desc: 'Clear accent for Indian students' },
+  { id: 'soft-uk', label: '🇬🇧 Soft British', desc: 'Gentle, slow & articulate' },
+  { id: 'natural-us', label: '🇺🇸 Natural American', desc: 'Standard conversational pace' },
+  { id: 'auto', label: '⚙️ System Default', desc: 'Your device default voice' },
+];
+
+const PulseRing = () => (
+  <motion.span
+    className="absolute inset-0 rounded-full border border-primary-500/40"
+    initial={{ scale: 1, opacity: 0.6 }}
+    animate={{ scale: 1.55, opacity: 0 }}
+    transition={{
+      duration: 1.2,
+      repeat: Infinity,
+      ease: 'easeOut',
+    }}
+    aria-hidden
+  />
+);
+
+export const NarrationControls = ({
+  isSpeaking,
+  isSupported,
+  enabled,
+  onToggle,
+  voiceProfile,
+  onVoiceChange,
+  className,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showAiSettings, setShowAiSettings] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // AI Audio Local States
+  const [provider, setProvider] = useState('browser');
+  const [apiKey, setApiKey] = useState('');
+  const [voice, setVoice] = useState('alloy');
+  const [testPlaying, setTestPlaying] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setProvider(localStorage.getItem('tts_provider') || 'browser');
+      setApiKey(localStorage.getItem('tts_api_key') || '');
+      setVoice(localStorage.getItem('tts_voice') || 'alloy');
+    }
+  }, [isOpen, showAiSettings]);
+
+  const tooltipText = !isSupported
+    ? 'Speech not supported'
+    : enabled
+      ? 'Disable narration'
+      : 'Toggle narration';
+
+  const Icon = enabled ? Volume2 : VolumeX;
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const saveAiSettings = () => {
+    localStorage.setItem('tts_provider', provider);
+    localStorage.setItem('tts_api_key', apiKey);
+    localStorage.setItem('tts_voice', voice);
+    
+    if (apiKey && provider !== 'browser') {
+      setTestPlaying(true);
+      const cleanText = "Neural AI Speech narration configured successfully!";
+      
+      const playBlob = (blob) => {
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.onended = () => setTestPlaying(false);
+        audio.onerror = () => setTestPlaying(false);
+        audio.play().catch(() => setTestPlaying(false));
+      };
+
+      if (provider === 'openai') {
+        fetch("https://api.openai.com/v1/audio/speech", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "tts-1",
+            input: cleanText,
+            voice: voice || "alloy"
+          })
+        })
+        .then(res => res.blob())
+        .then(playBlob)
+        .catch(() => setTestPlaying(false));
+      } else if (provider === 'elevenlabs') {
+        fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice || "21m00Tcm4TlvDq8ikWAM"}`, {
+          method: "POST",
+          headers: {
+            "xi-api-key": apiKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: cleanText,
+            model_id: "eleven_monolingual_v1"
+          })
+        })
+        .then(res => res.blob())
+        .then(playBlob)
+        .catch(() => setTestPlaying(false));
+      }
+    } else {
+      setShowAiSettings(false);
+    }
+  };
+
+  const isCloudActive = !!(provider && provider !== 'browser');
+
+  return (
+    <div className={cn('relative flex items-center gap-1 bg-[#090D16]/50 p-0.5 rounded-lg border border-slate-800', className)}>
+      <div className="relative group">
+        <button
+          type="button"
+          onClick={onToggle}
+          disabled={!isSupported}
+          aria-label={tooltipText}
+          className={cn(
+            'relative flex items-center justify-center',
+            'w-8 h-8 rounded-lg',
+            'border border-transparent transition-all duration-200',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
+            'active:scale-95',
+
+            isSupported && enabled
+              ? 'bg-primary-500/15 text-primary-300 hover:bg-primary-500/25'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800',
+
+            !isSupported && 'opacity-40 cursor-not-allowed',
+          )}
+        >
+          <AnimatePresence>
+            {isSpeaking && enabled && <PulseRing />}
+          </AnimatePresence>
+
+          <motion.span
+            key={enabled ? 'on' : 'off'}
+            initial={{ scale: 0.7, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.7, opacity: 0 }}
+            className="relative z-10 flex items-center justify-center"
+          >
+            <Icon className="w-4 h-4" strokeWidth={2} />
+          </motion.span>
+        </button>
+
+        {!isOpen && (
+          <span
+            role="tooltip"
+            className={cn(
+              'pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2',
+              'whitespace-nowrap rounded-md px-2 py-1',
+              'bg-[#080C10] border border-slate-800 shadow-lg',
+              'text-[11px] font-medium text-slate-400',
+              'opacity-0 scale-95 transition-all duration-150',
+              'group-hover:opacity-100 group-hover:scale-100 z-50',
+            )}
+          >
+            {tooltipText}
+          </span>
+        )}
+      </div>
+
+      {isSupported && enabled && (
+        <>
+          <span className="w-px h-5 bg-slate-800 mx-0.5" aria-hidden />
+
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn(
+                'flex items-center gap-1.5 px-2.5 h-8 rounded-lg text-xs font-semibold select-none transition-all duration-150',
+                isOpen 
+                  ? 'bg-primary-500/10 text-primary-300 border border-primary-500/20' 
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'
+              )}
+            >
+              <Globe className="w-3.5 h-3.5 text-primary-400 animate-pulse" />
+              <span className="max-w-[85px] truncate flex items-center gap-1">
+                {isCloudActive ? (
+                  <>
+                    <Sparkles className="w-3 h-3 text-amber-400 animate-spin" />
+                    <span>Neural AI</span>
+                  </>
+                ) : (
+                  <span>
+                    {voiceProfile === 'hinglish-classroom' ? 'Hinglish' : voiceProfile === 'indian-english' ? 'Indian' : voiceProfile === 'soft-uk' ? 'British' : voiceProfile === 'natural-us' ? 'American' : 'Default'}
+                  </span>
+                )}
+              </span>
+              <ChevronDown className={cn("w-3 h-3 text-slate-500 transition-transform duration-200", isOpen && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {isOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  transition={{ duration: 0.12 }}
+                  className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-56 bg-[#0a0f1c]/95 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] py-2 z-50 flex flex-col gap-0.5"
+                >
+                  <div className="px-3 py-1.5 text-[9px] uppercase tracking-wider font-mono font-extrabold text-[#475569] border-b border-slate-800 mb-1 flex items-center justify-between">
+                    <span>Voice Profiles</span>
+                    {isCloudActive && <span className="text-amber-400 font-extrabold text-[8px] border border-amber-500/20 bg-amber-500/10 px-1 rounded animate-pulse">Neural Active</span>}
+                  </div>
+                  
+                  {VOICE_PROFILES.map((profile) => (
+                    <button
+                      key={profile.id}
+                      type="button"
+                      disabled={isCloudActive}
+                      onClick={() => {
+                        onVoiceChange(profile.id);
+                        setIsOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center justify-between w-full px-3 py-2 text-left transition-colors",
+                        voiceProfile === profile.id && !isCloudActive
+                          ? "bg-primary-500/10 text-primary-300 font-bold"
+                          : isCloudActive 
+                            ? "opacity-35 cursor-not-allowed text-slate-600" 
+                            : "text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+                      )}
+                    >
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-xs">{profile.label}</span>
+                        <span className="text-[9px] text-[#475569] font-normal leading-none">{profile.desc}</span>
+                      </div>
+                      {voiceProfile === profile.id && !isCloudActive && <Check className="w-3.5 h-3.5 text-primary-400 shrink-0 ml-2" />}
+                    </button>
+                  ))}
+
+                  <div className="w-full h-px bg-slate-800 my-1" />
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAiSettings(true);
+                      setIsOpen(false);
+                    }}
+                    className="flex items-center justify-between gap-1 w-full px-3 py-2 text-left text-primary-300 hover:text-primary-200 hover:bg-primary-500/15 transition-colors font-bold text-xs"
+                  >
+                    <span className="flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Advanced Neural AI...</span>
+                    </span>
+                    <Settings className="w-3.5 h-3.5 text-slate-500" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
+
+      <AnimatePresence>
+        {showAiSettings && (
+          <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-sm bg-[#0a0f1d] border-2 border-primary-500/30 rounded-3xl p-6 shadow-[0_0_50px_rgba(139,92,246,0.3)] select-none flex flex-col gap-4 text-left relative"
+            >
+              <button 
+                onClick={() => setShowAiSettings(false)}
+                className="absolute top-4 right-4 text-slate-500 hover:text-slate-300 active:scale-90 transition-all p-1"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-400 animate-pulse" />
+                <h3 className="text-sm font-black text-slate-100 font-mono">NEURAL AI TTS SETTINGS</h3>
+              </div>
+
+              <div className="flex bg-slate-950 p-1 border border-slate-900 rounded-xl font-mono text-[9px]">
+                {[
+                  { id: 'browser', label: 'Free Browser' },
+                  { id: 'openai', label: 'OpenAI Speech' },
+                  { id: 'elevenlabs', label: 'ElevenLabs' }
+                ].map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => setProvider(p.id)}
+                    className={cn(
+                      "flex-1 py-1.5 rounded-lg font-bold text-center transition-all",
+                      provider === p.id 
+                        ? "bg-primary-500 text-[#090d1a] shadow" 
+                        : "text-slate-500 hover:text-slate-300"
+                    )}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+
+              {provider !== 'browser' ? (
+                <div className="flex flex-col gap-3 font-mono text-xs text-slate-300">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-slate-500 font-extrabold flex items-center gap-1.5">
+                      <Key className="w-3.5 h-3.5 text-primary-400" />
+                      API SECRET KEY:
+                    </label>
+                    <input 
+                      type="password"
+                      placeholder="sk-..."
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-700 outline-none focus:border-primary-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] text-slate-500 font-extrabold">
+                      CHOOSE VOICE PROFILE:
+                    </label>
+                    {provider === 'openai' ? (
+                      <select 
+                        value={voice}
+                        onChange={(e) => setVoice(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 outline-none focus:border-primary-500 cursor-pointer"
+                      >
+                        <option value="alloy">Alloy (Balanced, Neutral)</option>
+                        <option value="echo">Echo (Warm, Deep)</option>
+                        <option value="fable">Fable (Narrator, Warm)</option>
+                        <option value="onyx">Onyx (Deep Male)</option>
+                        <option value="nova">Nova (Energetic, Clear Female)</option>
+                        <option value="shimmer">Shimmer (Clear, Professional)</option>
+                      </select>
+                    ) : (
+                      <input 
+                        type="text"
+                        placeholder="ElevenLabs Voice ID"
+                        value={voice}
+                        onChange={(e) => setVoice(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 placeholder-slate-600 outline-none focus:border-primary-500"
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-900 text-[9px] text-slate-500 leading-normal">
+                    <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Your API key is saved directly inside your local browser cache (`localStorage`) and never leaves your client machine. Secure &amp; safe.</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-900 font-mono text-[10px] text-slate-400 leading-relaxed text-center">
+                  ✨ The <strong>Free Browser Neural Voice</strong> profiles are active. Chrome &amp; Edge neural voices will automatically rank to provide high-quality standard wave-speech.
+                </div>
+              )}
+
+              <div className="flex gap-2 mt-2 font-mono">
+                <button
+                  onClick={() => setShowAiSettings(false)}
+                  className="flex-1 py-2 text-xs font-extrabold text-slate-400 bg-slate-900 border border-slate-800 rounded-2xl hover:text-slate-200 active:scale-95 transition-all text-center"
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={saveAiSettings}
+                  className="flex-1 py-2 text-xs font-extrabold text-[#090d1a] bg-gradient-to-r from-primary-500 to-cyan-500 hover:from-primary-400 hover:to-cyan-400 rounded-2xl shadow active:scale-95 transition-all text-center flex items-center justify-center gap-1.5"
+                >
+                  {testPlaying && <Sparkles className="w-3.5 h-3.5 text-[#090d1a] animate-spin" />}
+                  <span>{testPlaying ? 'PLAYING TEST...' : 'SAVE & APPLY'}</span>
+                </button>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};

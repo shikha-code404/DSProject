@@ -1,11 +1,40 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Code2, CheckCircle } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import ModuleLayout from '../../components/layout/ModuleLayout';
+import { InteractiveVisualizer } from '../../components/visualizers/InteractiveVisualizer';
+import CodingArenaOverlay from '../../components/visualizers/CodingArenaOverlay';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
 import './PrereqModules.css';
 
 export default function ControlStatements() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [practiceProblems, setPracticeProblems] = useState([]);
+  const [activePracticeProblem, setActivePracticeProblem] = useState(null);
+  const [completedProblems, setCompletedProblems] = useState([]);
+
+  useEffect(() => {
+    async function fetchProblems() {
+      const { data } = await supabase.from('practice_problems').select('*').eq('module_id', 'control-statements').order('title');
+      if (data) setPracticeProblems(data);
+    }
+    fetchProblems();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    async function fetchSubmissions() {
+      const { data } = await supabase.from('submissions').select('problem_id').eq('user_id', user.id).eq('status', 'Completed');
+      if (data) setCompletedProblems(data.map(s => s.problem_id));
+    }
+    fetchSubmissions();
+  }, [user, activePracticeProblem]);
+
+  const allCompleted = practiceProblems.length > 0 && practiceProblems.every(p => completedProblems.includes(p.id));
+  const completedPct = practiceProblems.length > 0 ? Math.round((completedProblems.length / practiceProblems.length) * 100) : 0;
 
   useEffect(() => {
     // Tab switching logic for code examples
@@ -53,35 +82,34 @@ export default function ControlStatements() {
 
   return (
     <ModuleLayout title="Control Statements" moduleId={2}>
-      <div 
-        className="module-content" 
-        dangerouslySetInnerHTML={{ __html: `
+      <div className="module-content">
         
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
+        {/* SIDEBAR */}
+        <aside className="sidebar" dangerouslySetInnerHTML={{ __html: `
           <div style="padding: 0 20px 24px; margin-bottom: 16px;">
             <a id="beginner-back-btn" href="/beginner" class="nav-btn" style="border: none; padding: 8px 0;">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path d="M15 19l-7-7 7-7" />
-              </svg>Back to Beginner Hub
+              </svg>Back to Dashboard
             </a>
           </div>
-          <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
-          <div class="progress-label">Active Lesson</div>
+          <div class="progress-bar"><div class="progress-fill" style="width: ${completedPct}%;"></div></div>
+          <div class="progress-label">${completedPct}% complete</div>
 
           <div class="nav-section">Contents</div>
-          <a class="nav-item active" href="#hero"><span class="nav-dot"></span>Overview</a>
+          <a class="nav-item" href="#hero"><span class="nav-dot"></span>Overview</a>
           <a class="nav-item" href="#theory"><span class="nav-dot"></span>Theory</a>
           <a class="nav-item" href="#flowchart"><span class="nav-dot"></span>Decision Flow</a>
+          <a class="nav-item" href="#section-simulation"><span class="nav-dot"></span>Simulation</a>
           <a class="nav-item" href="#code"><span class="nav-dot"></span>Code Examples</a>
           <a class="nav-item" href="#complexity"><span class="nav-dot"></span>Complexity</a>
           <a class="nav-item" href="#practice"><span class="nav-dot"></span>Practice</a>
           <a class="nav-item" href="#summary"><span class="nav-dot"></span>Summary</a>
-        </aside>
+        ` }} />
 
-        <div class="main">
-          <!-- HERO -->
-          <div class="hero" id="hero">
+        <div className="main">
+          {/* HERO */}
+          <div className="hero" id="hero" dangerouslySetInnerHTML={{ __html: `
             <div class="hero-visual">FLOW</div>
             <div class="hero-inner">
               <div class="hero-badges">
@@ -103,9 +131,10 @@ export default function ControlStatements() {
                 </div>
               </div>
             </div>
-          </div>
+          ` }} />
 
-          <div class="content">
+          <div className="content">
+            <div dangerouslySetInnerHTML={{ __html: `
             <!-- OVERVIEW -->
             <section id="overview">
               <div class="section-label">01 / Overview</div>
@@ -228,75 +257,170 @@ export default function ControlStatements() {
                 </div>
               </div>
             </section>
+            ` }} />
 
+            <InteractiveVisualizer />
+
+            <div dangerouslySetInnerHTML={{ __html: `
             <!-- CODE -->
             <section id="code">
               <div class="section-label">04 / Code Examples</div>
-              <div class="section-title">Code Implementation</div>
-              <p class="section-desc">Observe the syntax and structure of conditional control statements.</p>
+              <div class="section-title">Pseudocode Implementation</div>
+              <p class="section-desc">Observe the logic and structure of conditional control statements using language-independent pseudocode.</p>
 
-              <div class="code-block-wrapper" style="margin-bottom:24px;">
+              <div class="code-block-wrapper" style="margin-bottom:32px;">
                 <div class="code-header">
                   <div class="code-header-left">
                     <div class="code-tabs">
-                      <div class="code-tab active" data-target="if-basic-panel">1 — The if statement</div>
-                      <div class="code-tab" data-target="if-else-panel">2 — The if-else statement</div>
-                      <div class="code-tab" data-target="switch-panel">3 — The switch statement</div>
+                      <div class="code-tab active" data-target="if-pseudo-panel">1 — The if statement</div>
+                      <div class="code-tab" data-target="ifelse-pseudo-panel">2 — The if-else statement</div>
+                      <div class="code-tab" data-target="switch-pseudo-panel">3 — The switch statement</div>
                     </div>
                   </div>
                   <button class="copy-btn" onclick="navigator.clipboard.writeText(document.querySelector('.code-panel.active pre').innerText)">Copy</button>
                 </div>
                 
-                <div id="code-content-blocks">
-                  <!-- IF BASIC -->
-                  <div class="code-panel active" id="if-basic-panel">
-                    <pre><span class="cmt">// if_basic.c</span>
-<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+                <div id="pseudo-blocks">
+                  <!-- IF BASIC PSEUDO -->
+                  <div class="code-panel active" id="if-pseudo-panel">
+                    <pre><span class="cmt"># 1. Basic If</span>
+<span class="kw">if</span> <span class="var">condition</span> <span class="kw">then</span>
+    <span class="cmt">// code to execute if condition is true</span>
+<span class="kw">end if</span></pre>
+                  </div>
 
-<span class="kw">int</span> <span class="fn">main</span>() {
-    <span class="kw">int</span> <span class="var">num</span> <span class="op">=</span> <span class="num">10</span><span class="punc">;</span>
-    <span class="kw">if</span>(<span class="var">num</span> <span class="op">&gt;</span> <span class="num">0</span>) {
-        <span class="fn">printf</span>(<span class="str">"Number is positive\\n"</span>)<span class="punc">;</span>
-    }
-    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+                  <!-- IF ELSE PSEUDO -->
+                  <div class="code-panel" id="ifelse-pseudo-panel">
+                    <pre><span class="cmt"># 2. If-Else</span>
+<span class="kw">if</span> <span class="var">condition</span> <span class="kw">then</span>
+    <span class="cmt">// code to execute if condition is true</span>
+<span class="kw">else</span>
+    <span class="cmt">// code to execute if condition is false</span>
+<span class="kw">end if</span></pre>
+                  </div>
+
+                  <!-- SWITCH PSEUDO -->
+                  <div class="code-panel" id="switch-pseudo-panel">
+                    <pre><span class="cmt"># 3. Switch Case</span>
+<span class="kw">switch</span> <span class="var">expression</span>
+    <span class="kw">case</span> <span class="num">value1</span>:
+        <span class="cmt">// execute if expression equals value1</span>
+    <span class="kw">case</span> <span class="num">value2</span>:
+        <span class="cmt">// execute if expression equals value2</span>
+    <span class="kw">default</span>:
+        <span class="cmt">// execute if no case matches</span>
+<span class="kw">end switch</span></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section-title">Language Syntax</div>
+              <p class="section-desc">See how these pseudocode concepts translate into proper syntax across popular programming languages.</p>
+
+              <div class="code-block-wrapper" style="margin-bottom:24px;">
+                <div class="code-header">
+                  <div class="code-header-left">
+                    <div class="code-tabs">
+                      <div class="code-tab active" data-target="c-panel">C</div>
+                      <div class="code-tab" data-target="cpp-panel">C++</div>
+                      <div class="code-tab" data-target="java-panel">Java</div>
+                      <div class="code-tab" data-target="py-panel">Python</div>
+                    </div>
+                  </div>
+                  <button class="copy-btn" onclick="navigator.clipboard.writeText(document.querySelector('.code-panel.active pre').innerText)">Copy</button>
+                </div>
+                
+                <div id="lang-blocks">
+                  <!-- C -->
+                  <div class="code-panel active" id="c-panel">
+                    <pre><span class="cmt">// 1. Basic If</span>
+<span class="kw">if</span>(<span class="var">num</span> <span class="op">&gt;</span> <span class="num">0</span>) {
+    <span class="fn">printf</span>(<span class="str">"Positive\\n"</span>)<span class="punc">;</span>
+}
+
+<span class="cmt">// 2. If-Else</span>
+<span class="kw">if</span>(<span class="var">num</span> <span class="op">%</span> <span class="num">2</span> <span class="op">==</span> <span class="num">0</span>) {
+    <span class="fn">printf</span>(<span class="str">"Even\\n"</span>)<span class="punc">;</span>
+} <span class="kw">else</span> {
+    <span class="fn">printf</span>(<span class="str">"Odd\\n"</span>)<span class="punc">;</span>
+}
+
+<span class="cmt">// 3. Switch</span>
+<span class="kw">switch</span>(<span class="var">day</span>) {
+    <span class="kw">case</span> <span class="num">1</span>: <span class="fn">printf</span>(<span class="str">"Monday\\n"</span>)<span class="punc">;</span> <span class="kw">break</span><span class="punc">;</span>
+    <span class="kw">case</span> <span class="num">2</span>: <span class="fn">printf</span>(<span class="str">"Tuesday\\n"</span>)<span class="punc">;</span> <span class="kw">break</span><span class="punc">;</span>
+    <span class="kw">default</span>: <span class="fn">printf</span>(<span class="str">"Invalid\\n"</span>)<span class="punc">;</span>
 }</pre>
                   </div>
 
-                  <!-- IF ELSE -->
-                  <div class="code-panel" id="if-else-panel">
-                    <pre><span class="cmt">// if_else.c</span>
-<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+                  <!-- C++ -->
+                  <div class="code-panel" id="cpp-panel">
+                    <pre><span class="cmt">// 1. Basic If</span>
+<span class="kw">if</span>(<span class="var">num</span> <span class="op">&gt;</span> <span class="num">0</span>) {
+    <span class="fn">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Positive\\n"</span><span class="punc">;</span>
+}
 
-<span class="kw">int</span> <span class="fn">main</span>() {
-    <span class="kw">int</span> <span class="var">num</span> <span class="op">=</span> <span class="num">5</span><span class="punc">;</span>
-    <span class="kw">if</span>(<span class="var">num</span> <span class="op">%</span> <span class="num">2</span> <span class="op">==</span> <span class="num">0</span>)
-        <span class="fn">printf</span>(<span class="str">"Even number\\n"</span>)<span class="punc">;</span>
-    <span class="kw">else</span>
-        <span class="fn">printf</span>(<span class="str">"Odd number\\n"</span>)<span class="punc">;</span>
-    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="cmt">// 2. If-Else</span>
+<span class="kw">if</span>(<span class="var">num</span> <span class="op">%</span> <span class="num">2</span> <span class="op">==</span> <span class="num">0</span>) {
+    <span class="fn">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Even\\n"</span><span class="punc">;</span>
+} <span class="kw">else</span> {
+    <span class="fn">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Odd\\n"</span><span class="punc">;</span>
+}
+
+<span class="cmt">// 3. Switch</span>
+<span class="kw">switch</span>(<span class="var">day</span>) {
+    <span class="kw">case</span> <span class="num">1</span>: <span class="fn">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Monday\\n"</span><span class="punc">;</span> <span class="kw">break</span><span class="punc">;</span>
+    <span class="kw">case</span> <span class="num">2</span>: <span class="fn">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Tuesday\\n"</span><span class="punc">;</span> <span class="kw">break</span><span class="punc">;</span>
+    <span class="kw">default</span>: <span class="fn">cout</span> <span class="op">&lt;&lt;</span> <span class="str">"Invalid\\n"</span><span class="punc">;</span>
 }</pre>
                   </div>
 
-                  <!-- SWITCH -->
-                  <div class="code-panel" id="switch-panel">
-                    <pre><span class="cmt">// switch_day.c</span>
-<span class="kw">#include</span> <span class="str">&lt;stdio.h&gt;</span>
+                  <!-- JAVA -->
+                  <div class="code-panel" id="java-panel">
+                    <pre><span class="cmt">// 1. Basic If</span>
+<span class="kw">if</span>(<span class="var">num</span> <span class="op">&gt;</span> <span class="num">0</span>) {
+    <span class="fn">System.out.println</span>(<span class="str">"Positive"</span>)<span class="punc">;</span>
+}
 
-<span class="kw">int</span> <span class="fn">main</span>() {
-    <span class="kw">int</span> <span class="var">day</span> <span class="op">=</span> <span class="num">2</span><span class="punc">;</span>
-    <span class="kw">switch</span>(<span class="var">day</span>) {
-        <span class="kw">case</span> <span class="num">1</span>: <span class="fn">printf</span>(<span class="str">"Monday\\n"</span>)<span class="punc">;</span>    <span class="kw">break</span><span class="punc">;</span>
-        <span class="kw">case</span> <span class="num">2</span>: <span class="fn">printf</span>(<span class="str">"Tuesday\\n"</span>)<span class="punc">;</span>   <span class="kw">break</span><span class="punc">;</span>
-        <span class="kw">case</span> <span class="num">3</span>: <span class="fn">printf</span>(<span class="str">"Wednesday\\n"</span>)<span class="punc">;</span> <span class="kw">break</span><span class="punc">;</span>
-        <span class="kw">default</span>: <span class="fn">printf</span>(<span class="str">"Invalid day\\n"</span>)<span class="punc">;</span>
-    }
-    <span class="kw">return</span> <span class="num">0</span><span class="punc">;</span>
+<span class="cmt">// 2. If-Else</span>
+<span class="kw">if</span>(<span class="var">num</span> <span class="op">%</span> <span class="num">2</span> <span class="op">==</span> <span class="num">0</span>) {
+    <span class="fn">System.out.println</span>(<span class="str">"Even"</span>)<span class="punc">;</span>
+} <span class="kw">else</span> {
+    <span class="fn">System.out.println</span>(<span class="str">"Odd"</span>)<span class="punc">;</span>
+}
+
+<span class="cmt">// 3. Switch</span>
+<span class="kw">switch</span>(<span class="var">day</span>) {
+    <span class="kw">case</span> <span class="num">1</span>: <span class="fn">System.out.println</span>(<span class="str">"Monday"</span>)<span class="punc">;</span> <span class="kw">break</span><span class="punc">;</span>
+    <span class="kw">case</span> <span class="num">2</span>: <span class="fn">System.out.println</span>(<span class="str">"Tuesday"</span>)<span class="punc">;</span> <span class="kw">break</span><span class="punc">;</span>
+    <span class="kw">default</span>: <span class="fn">System.out.println</span>(<span class="str">"Invalid"</span>)<span class="punc">;</span>
 }</pre>
+                  </div>
+
+                  <!-- PYTHON -->
+                  <div class="code-panel" id="py-panel">
+                    <pre><span class="cmt"># 1. Basic If</span>
+<span class="kw">if</span> <span class="var">num</span> <span class="op">&gt;</span> <span class="num">0</span>:
+    <span class="fn">print</span>(<span class="str">"Positive"</span>)
+
+<span class="cmt"># 2. If-Else</span>
+<span class="kw">if</span> <span class="var">num</span> <span class="op">%</span> <span class="num">2</span> <span class="op">==</span> <span class="num">0</span>:
+    <span class="fn">print</span>(<span class="str">"Even"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Odd"</span>)
+
+<span class="cmt"># 3. Match-Case (Python 3.10+)</span>
+<span class="kw">match</span> <span class="var">day</span>:
+    <span class="kw">case</span> <span class="num">1</span>:
+        <span class="fn">print</span>(<span class="str">"Monday"</span>)
+    <span class="kw">case</span> <span class="num">2</span>:
+        <span class="fn">print</span>(<span class="str">"Tuesday"</span>)
+    <span class="kw">case _</span>:
+        <span class="fn">print</span>(<span class="str">"Invalid"</span>)</pre>
                   </div>
                 </div>
               </div>
             </section>
-
             <!-- COMPLEXITY -->
             <section id="complexity">
               <div class="section-label">05 / Complexity</div>
@@ -332,25 +456,56 @@ export default function ControlStatements() {
               </div>
             </section>
 
-            <!-- PRACTICE -->
-            <section id="practice">
-              <div class="section-label">06 / Practice</div>
-              <div class="section-title">Practice Challenges</div>
-              <p class="section-desc">Try writing programs for these common scenarios using control statements:</p>
+            </section>
+            ` }} />
 
-              <div class="cards-grid">
-                <div class="card" style="border-top:2px solid var(--green)">
-                  <div class="card-title">1. Leap Year Checker</div>
-                  <div class="card-desc">Write an if-else condition to check if a given year is a leap year. Rules: divisible by 4, but not by 100 unless also divisible by 400.</div>
-                </div>
-                <div class="card" style="border-top:2px solid var(--accent3)">
-                  <div class="card-title">2. Grade Calculator</div>
-                  <div class="card-desc">Use a structured else-if chain to accept a score (0-100) and output the corresponding grade: A (>=90), B (>=80), C (>=70), else F.</div>
-                </div>
+            {/* PRACTICE (Dynamic) */}
+            <section id="practice">
+              <div className="section-label">06 / Practice</div>
+              <div className="section-title">Practice Challenges</div>
+              <p className="section-desc">Try writing programs for these common scenarios using control statements:</p>
+
+              <div className="cards-grid">
+                {practiceProblems.length === 0 ? (
+                  <div className="text-gray-400 text-sm">Loading challenges...</div>
+                ) : (
+                  practiceProblems.map((p, idx) => {
+                    const isCompleted = completedProblems.includes(p.id);
+                    return (
+                    <div 
+                      key={p.id} 
+                      className="card cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 bg-[#1e1e24]" 
+                      style={{ borderTop: `3px solid ${isCompleted ? 'var(--green)' : idx % 2 === 0 ? 'var(--accent)' : 'var(--accent3)'}` }}
+                      onClick={() => setActivePracticeProblem(p.id)}
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-lg ${isCompleted ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                          {isCompleted ? <CheckCircle size={18} /> : <Code2 size={18} />}
+                        </div>
+                        <div className="card-title m-0 text-lg">{idx + 1}. {p.title}</div>
+                      </div>
+                      <div className="card-desc text-gray-400 text-sm mb-6" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {p.description.split('\n')[0].replace(/`/g, '')}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        {isCompleted ? (
+                          <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-green-400 bg-green-500/10 px-3 py-1.5 rounded-full border border-green-500/20">
+                            <Check size={14} /> Completed
+                          </span>
+                        ) : (
+                          <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded shadow-lg shadow-blue-900/20 transition-colors">
+                            Solve Challenge
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )})
+                )}
               </div>
             </section>
 
-            <!-- SUMMARY -->
+            {/* SUMMARY */}
+            <div dangerouslySetInnerHTML={{ __html: `
             <section id="summary">
               <div class="section-label">07 / Summary</div>
               <div class="section-title">Quick Review</div>
@@ -377,10 +532,10 @@ export default function ControlStatements() {
                 </div>
               </div>
             </section>
+            ` }} />
           </div>
         </div>
-        ` }} 
-      />
+      </div>
 
       {/* Navigation Buttons */}
       <div className="w-full">
@@ -396,14 +551,29 @@ export default function ControlStatements() {
 
             <button 
               onClick={() => navigate('/beginner')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-accent-cyan hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+              disabled={!allCompleted}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all ${
+                allCompleted 
+                  ? 'bg-gradient-to-r from-primary-500 to-accent-cyan hover:shadow-lg hover:shadow-primary-500/25' 
+                  : 'bg-gray-600 opacity-50 cursor-not-allowed'
+              }`}
+              title={!allCompleted ? "Solve all challenges to unlock" : ""}
             >
-              Finish Lesson
+              {allCompleted ? "Finish Lesson" : "Complete Challenges to Finish"}
               <Check className="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {activePracticeProblem && (
+          <CodingArenaOverlay 
+            problemId={activePracticeProblem} 
+            onClose={() => setActivePracticeProblem(null)} 
+          />
+        )}
+      </AnimatePresence>
     </ModuleLayout>
   );
 }

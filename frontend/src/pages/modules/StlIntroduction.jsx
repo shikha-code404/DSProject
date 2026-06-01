@@ -1,11 +1,39 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Code2, CheckCircle } from 'lucide-react';
 import ModuleLayout from '../../components/layout/ModuleLayout';
+import CodingArenaOverlay from '../../components/visualizers/CodingArenaOverlay';
+import { STLInteractiveVisualizer } from '../../components/visualizers/STLVisualizer';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
 import './PrereqModules.css';
 
 export default function StlIntroduction() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [practiceProblems, setPracticeProblems] = useState([]);
+  const [activePracticeProblem, setActivePracticeProblem] = useState(null);
+  const [completedProblems, setCompletedProblems] = useState([]);
+
+  useEffect(() => {
+    async function fetchProblems() {
+      const { data } = await supabase.from('practice_problems').select('*').eq('module_id', 'stl').order('title');
+      if (data) setPracticeProblems(data);
+    }
+    fetchProblems();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    async function fetchSubmissions() {
+      const { data } = await supabase.from('submissions').select('problem_id').eq('user_id', user.id).eq('status', 'Completed');
+      if (data) setCompletedProblems(data.map(s => s.problem_id));
+    }
+    fetchSubmissions();
+  }, [user, activePracticeProblem]);
+
+  const allCompleted = practiceProblems.length > 0 && practiceProblems.every(p => completedProblems.includes(p.id));
+  const completedPct = practiceProblems.length > 0 ? Math.round((completedProblems.length / practiceProblems.length) * 100) : 0;
 
   useEffect(() => {
     // Tab switching logic for code examples
@@ -53,34 +81,34 @@ export default function StlIntroduction() {
 
   return (
     <ModuleLayout title="STL Introduction" moduleId={8}>
-      <div 
-        className="module-content" 
-        dangerouslySetInnerHTML={{ __html: `
+      <div className="module-content">
         
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
+        {/* SIDEBAR */}
+        <aside className="sidebar" dangerouslySetInnerHTML={{ __html: `
           <div style="padding: 0 20px 24px; margin-bottom: 16px;">
             <a id="beginner-back-btn" href="/beginner" class="nav-btn" style="border: none; padding: 8px 0;">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path d="M15 19l-7-7 7-7" />
-              </svg>Back to Beginner Hub
+              </svg>Back to Dashboard
             </a>
           </div>
-          <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
-          <div class="progress-label">Active Lesson</div>
+          <div class="progress-bar"><div class="progress-fill" style="width: ${completedPct}%;"></div></div>
+          <div class="progress-label">${completedPct}% complete</div>
 
           <div class="nav-section">Contents</div>
           <a class="nav-item active" href="#hero"><span class="nav-dot"></span>Overview</a>
           <a class="nav-item" href="#architecture"><span class="nav-dot"></span>Architecture</a>
           <a class="nav-item" href="#components"><span class="nav-dot"></span>Core Components</a>
+          <a class="nav-item" href="#section-simulation"><span class="nav-dot"></span>Simulation</a>
           <a class="nav-item" href="#code"><span class="nav-dot"></span>Code Implementation</a>
           <a class="nav-item" href="#complexity"><span class="nav-dot"></span>Complexity</a>
+          <a class="nav-item" href="#practice"><span class="nav-dot"></span>Practice</a>
           <a class="nav-item" href="#summary"><span class="nav-dot"></span>Summary</a>
-        </aside>
+        ` }} />
 
-        <div class="main">
-          <!-- HERO -->
-          <div class="hero" id="hero">
+        <div className="main">
+          {/* HERO */}
+          <div className="hero" id="hero" dangerouslySetInnerHTML={{ __html: `
             <div class="hero-visual">STL</div>
             <div class="hero-inner">
               <div class="hero-badges">
@@ -103,9 +131,11 @@ export default function StlIntroduction() {
               </div>
             </div>
           </div>
+          ` }} />
 
-          <div class="content">
-            <!-- OVERVIEW -->
+          <div className="content">
+            {/* OVERVIEW */}
+            <div dangerouslySetInnerHTML={{ __html: `
             <section id="overview">
               <div class="section-label">01 / Overview</div>
               <div class="section-title">Topic Overview</div>
@@ -257,7 +287,11 @@ export default function StlIntroduction() {
                 </div>
               </div>
             </section>
+            ` }} />
 
+            <STLInteractiveVisualizer />
+
+            <div dangerouslySetInnerHTML={{ __html: `
             <!-- CODE IMPLEMENTATION -->
             <section id="code">
               <div class="section-label">04 / Code Examples</div>
@@ -711,7 +745,59 @@ export default function StlIntroduction() {
                 * Random access is not applicable (N/A) for sets/maps because elements are sorted and referenced dynamically by keys/values.
               </div>
             </section>
+            ` }} />
 
+            {/* PRACTICE SECTION */}
+            <section id="practice" className="my-16 scroll-mt-20">
+              <div className="mb-8">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary-400 mb-2">
+                  <Code2 className="w-4 h-4 text-primary-400" />
+                  Practice Area
+                </div>
+                <h3 className="text-2xl font-bold tracking-tight text-slate-100">Coding Challenges</h3>
+                <p className="text-sm text-slate-400 max-w-2xl mt-2">
+                  Apply what you've learned. Solve these standard template library challenges to complete this module.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {practiceProblems.map((prob, idx) => {
+                  const isCompleted = completedProblems.includes(prob.id);
+                  return (
+                    <button
+                      key={prob.id}
+                      onClick={() => setActivePracticeProblem(prob)}
+                      className="w-full bg-[#080C10]/80 border border-slate-800 rounded-2xl p-5 hover:bg-slate-900/80 transition-all text-left flex items-center justify-between group relative overflow-hidden"
+                      style={{ borderTop: `3px solid ${isCompleted ? 'var(--green)' : idx % 2 === 0 ? 'var(--accent)' : 'var(--accent3)'}` }}
+                    >
+                      <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Code2 className="w-24 h-24 rotate-12" />
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className="text-[10px] font-mono bg-slate-900 text-slate-400 px-2 py-0.5 rounded border border-slate-700 uppercase">
+                            Challenge {idx + 1}
+                          </span>
+                          {isCompleted && (
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded uppercase">
+                              <CheckCircle className="w-3 h-3" /> Solved
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-base font-bold text-slate-200 group-hover:text-primary-300 transition-colors">{prob.title}</h4>
+                      </div>
+
+                      <div className="w-8 h-8 rounded-full bg-primary-500/10 flex items-center justify-center text-primary-400 group-hover:bg-primary-500 group-hover:text-white transition-all shrink-0 z-10">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <div dangerouslySetInnerHTML={{ __html: `
             <!-- SUMMARY -->
             <section id="summary">
               <div class="section-label">06 / Summary</div>
@@ -739,10 +825,22 @@ export default function StlIntroduction() {
                 </div>
               </div>
             </section>
+            ` }} />
           </div>
         </div>
-        ` }} 
-      />
+      </div>
+
+      {activePracticeProblem && (
+        <CodingArenaOverlay
+          problem={activePracticeProblem}
+          onClose={() => setActivePracticeProblem(null)}
+          onSuccess={() => {
+            if (!completedProblems.includes(activePracticeProblem.id)) {
+              setCompletedProblems([...completedProblems, activePracticeProblem.id]);
+            }
+          }}
+        />
+      )}
 
       {/* Navigation Buttons */}
       <div className="w-full">
@@ -758,9 +856,14 @@ export default function StlIntroduction() {
 
             <button 
               onClick={() => navigate('/beginner')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-accent-cyan hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+              disabled={!allCompleted}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                allCompleted 
+                  ? 'text-white bg-gradient-to-r from-emerald-500 to-emerald-400 hover:shadow-lg hover:shadow-emerald-500/25' 
+                  : 'text-slate-400 bg-slate-800 cursor-not-allowed opacity-50'
+              }`}
             >
-              Finish Lesson
+              {allCompleted ? 'Finish Module' : 'Complete Challenges to Finish'}
               <Check className="w-4 h-4" />
             </button>
           </div>

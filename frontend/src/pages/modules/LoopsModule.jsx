@@ -1,11 +1,38 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check, Code2, CheckCircle } from 'lucide-react';
 import ModuleLayout from '../../components/layout/ModuleLayout';
+import CodingArenaOverlay from '../../components/visualizers/CodingArenaOverlay';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
 import './PrereqModules.css';
 
 export default function LoopsModule() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [practiceProblems, setPracticeProblems] = useState([]);
+  const [activePracticeProblem, setActivePracticeProblem] = useState(null);
+  const [completedProblems, setCompletedProblems] = useState([]);
+
+  useEffect(() => {
+    async function fetchProblems() {
+      const { data } = await supabase.from('practice_problems').select('*').eq('module_id', 'loops').order('title');
+      if (data) setPracticeProblems(data);
+    }
+    fetchProblems();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    async function fetchSubmissions() {
+      const { data } = await supabase.from('submissions').select('problem_id').eq('user_id', user.id).eq('status', 'Completed');
+      if (data) setCompletedProblems(data.map(s => s.problem_id));
+    }
+    fetchSubmissions();
+  }, [user, activePracticeProblem]);
+
+  const allCompleted = practiceProblems.length > 0 && practiceProblems.every(p => completedProblems.includes(p.id));
+  const completedPct = practiceProblems.length > 0 ? Math.round((completedProblems.length / practiceProblems.length) * 100) : 0;
 
   useEffect(() => {
     // Tab switching logic for code examples
@@ -53,41 +80,41 @@ export default function LoopsModule() {
 
   return (
     <ModuleLayout title="Loops" moduleId={3}>
-      <div 
-        className="module-content" 
-        dangerouslySetInnerHTML={{ __html: `
-        
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
+      <div className="module-content">
+
+        {/* SIDEBAR */}
+        <aside className="sidebar" dangerouslySetInnerHTML={{
+          __html: `
           <div style="padding: 0 20px 24px; margin-bottom: 16px;">
             <a id="beginner-back-btn" href="/beginner" class="nav-btn" style="border: none; padding: 8px 0;">
               <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path d="M15 19l-7-7 7-7" />
-              </svg>Back to Beginner Hub
+              </svg>Back to Dashboard
             </a>
           </div>
-          <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
-          <div class="progress-label">Active Lesson</div>
+          <div class="progress-bar"><div class="progress-fill" style="width: ${completedPct}%;"></div></div>
+          <div class="progress-label">${completedPct}% complete</div>
 
           <div class="nav-section">Contents</div>
-          <a class="nav-item active" href="#hero"><span class="nav-dot"></span>Overview</a>
+          <a class="nav-item" href="#hero"><span class="nav-dot"></span>Overview</a>
           <a class="nav-item" href="#components"><span class="nav-dot"></span>Core Components</a>
           <a class="nav-item" href="#types"><span class="nav-dot"></span>Loop Types</a>
           <a class="nav-item" href="#code"><span class="nav-dot"></span>Code Examples</a>
           <a class="nav-item" href="#practice"><span class="nav-dot"></span>Practice</a>
           <a class="nav-item" href="#summary"><span class="nav-dot"></span>Summary</a>
-        </aside>
+        ` }} />
 
-        <div class="main">
-          <!-- HERO -->
-          <div class="hero" id="hero">
+        <div className="main">
+          {/* HERO */}
+          <div className="hero" id="hero" dangerouslySetInnerHTML={{
+            __html: `
             <div class="hero-visual">LOOP</div>
             <div class="hero-inner">
               <div class="hero-badges">
                 <span class="badge badge-purple">⚡ Beginner</span>
                 <span class="badge badge-blue">⏱ 40 min read</span>
               </div>
-              <h1 class="hero-title">Mastering Loops:<br>Automation & Repetition</h1>
+              <h1 class="hero-title">Mastering Loops:<br>Automation &amp; Repetition</h1>
               <p class="hero-sub">Learn how to control program execution paths by repeating instructions cleanly. Explore for, while, do-while, and nested structures.</p>
               <div class="hero-meta">
                 <div class="hero-meta-item">
@@ -102,10 +129,10 @@ export default function LoopsModule() {
                 </div>
               </div>
             </div>
-          </div>
+          `}}></div>
 
-          <div class="content">
-            <!-- OVERVIEW -->
+          <div className="content">
+            <div dangerouslySetInnerHTML={{ __html: `
             <section id="overview">
               <div class="section-label">01 / Overview</div>
               <div class="section-title">What are Loops?</div>
@@ -303,26 +330,57 @@ export default function LoopsModule() {
                 </div>
               </div>
             </section>
+          ` }}></div>
 
-            <!-- PRACTICE -->
-            <section id="practice">
-              <div class="section-label">05 / Practice</div>
-              <div class="section-title">Practice Challenges</div>
-              <p class="section-desc">Try writing small programs for these scenarios to build strong practical loops skills:</p>
+          {/* PRACTICE (Dynamic) */}
+          <section id="practice">
+            <div className="section-label">05 / Practice</div>
+            <div className="section-title">Practice Challenges</div>
+            <p className="section-desc">Try writing programs for these common scenarios using loops:</p>
 
-              <div class="cards-grid">
-                <div class="card" style="border-top:2px solid var(--green)">
-                  <div class="card-title">1. Sum of first N Numbers</div>
-                  <div class="card-desc">Write a <code>for</code> loop that sums numbers from 1 to N (e.g. 1 + 2 + 3 + ... + N) and prints the cumulative result.</div>
-                </div>
-                <div class="card" style="border-top:2px solid var(--accent3)">
-                  <div class="card-title">2. Star Pattern Grid</div>
-                  <div class="card-desc">Use nested loops to print a 5x5 grid of asterisks (<code>*</code>). Ensure columns are separated by spaces, and rows by newlines.</div>
-                </div>
-              </div>
-            </section>
+            <div className="cards-grid">
+              {practiceProblems.length === 0 ? (
+                <div className="text-gray-400 text-sm">Loading challenges...</div>
+              ) : (
+                practiceProblems.map((p, idx) => {
+                  const isCompleted = completedProblems.includes(p.id);
+                  return (
+                    <div
+                      key={p.id}
+                      className="card cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 bg-[#1e1e24]"
+                      style={{ borderTop: `3px solid ${isCompleted ? 'var(--green)' : idx % 2 === 0 ? 'var(--accent)' : 'var(--accent3)'}` }}
+                      onClick={() => setActivePracticeProblem(p.id)}
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-lg ${isCompleted ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                          {isCompleted ? <CheckCircle size={18} /> : <Code2 size={18} />}
+                        </div>
+                        <div className="card-title m-0 text-lg">{idx + 1}. {p.title}</div>
+                      </div>
+                      <div className="card-desc text-gray-400 text-sm mb-6" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {p.description.split('\n')[0].replace(/`/g, '')}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        {isCompleted ? (
+                          <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-green-400 bg-green-500/10 px-3 py-1.5 rounded-full border border-green-500/20">
+                            <Check size={14} /> Completed
+                          </span>
+                        ) : (
+                          <button className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded shadow-lg shadow-blue-900/20 transition-colors">
+                            Solve Challenge
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </section>
 
-            <!-- SUMMARY -->
+          {/* SUMMARY */}
+          <div dangerouslySetInnerHTML={{
+            __html: `
             <section id="summary">
               <div class="section-label">06 / Summary</div>
               <div class="section-title">Quick Review</div>
@@ -349,33 +407,51 @@ export default function LoopsModule() {
                 </div>
               </div>
             </section>
-          </div>
-        </div>
-        ` }} 
-      />
+            ` }}></div>
+        </div>{/* end .content */}
+      </div>{/* end .main */}
+    </div>{/* end .module-content */ }
 
-      {/* Navigation Buttons */}
-      <div className="w-full">
-        <div className="max-w-[980px] mx-auto">
-          <div className="module-nav flex items-center justify-between mt-12 pt-6 border-t border-slate-200 dark:border-white/10 mb-20 px-10">
-            <button 
-              onClick={() => navigate('/beginner')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-accent-cyan hover:shadow-lg hover:shadow-primary-500/25 transition-all"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Hub
-            </button>
+  {/* Navigation Buttons */ }
+  <div className="w-full">
+    <div className="max-w-[980px] mx-auto">
+      <div className="module-nav flex items-center justify-between mt-12 pt-6 border-t border-slate-200 dark:border-white/10 mb-20 px-10">
+        <button
+          onClick={() => navigate('/beginner')}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-accent-cyan hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Hub
+        </button>
 
-            <button 
-              onClick={() => navigate('/beginner')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-accent-cyan hover:shadow-lg hover:shadow-primary-500/25 transition-all"
-            >
-              Finish Lesson
-              <Check className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={() => navigate('/beginner')}
+          disabled={!allCompleted}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all ${allCompleted
+              ? 'bg-gradient-to-r from-primary-500 to-accent-cyan hover:shadow-lg hover:shadow-primary-500/25'
+              : 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-70'
+            }`}
+        >
+          Finish Lesson
+          <Check className="w-4 h-4" />
+        </button>
       </div>
-    </ModuleLayout>
+    </div>
+  </div>
+
+  {
+    activePracticeProblem && (
+      <CodingArenaOverlay
+        problemId={activePracticeProblem}
+        onClose={() => setActivePracticeProblem(null)}
+        onSuccess={() => {
+          if (!completedProblems.includes(activePracticeProblem)) {
+            setCompletedProblems([...completedProblems, activePracticeProblem]);
+          }
+        }}
+      />
+    )
+  }
+    </ModuleLayout >
   );
 }

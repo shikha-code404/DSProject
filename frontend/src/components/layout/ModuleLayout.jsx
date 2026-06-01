@@ -54,7 +54,7 @@ export default function ModuleLayout({ children, title, moduleId }) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            navItems.forEach(nav => nav.classList.remove('active'))
+            document.querySelectorAll('a.nav-item').forEach(nav => nav.classList.remove('active'))
             const activeNav = document.querySelector(`a.nav-item[href="#${entry.target.id}"]`)
             if (activeNav) activeNav.classList.add('active')
           }
